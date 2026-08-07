@@ -29,7 +29,8 @@ class StudentController extends Controller
     public function showForm()
     {
         $exam = Exam::where('status', 'active')->first() ?? Exam::first();
-        return view('student.participant-form', compact('exam'));
+        $studyPrograms = \App\Models\StudyProgram::orderBy('name')->get();
+        return view('student.participant-form', compact('exam', 'studyPrograms'));
     }
 
     /**
@@ -41,22 +42,56 @@ class StudentController extends Controller
             'fullName' => 'required|string|max:255',
             'schoolOrigin' => 'required|string|max:255',
             'majorChoice1' => 'required|string',
-            'majorChoice2' => 'required|string',
         ]);
 
-        $exam = Exam::where('status', 'active')->first() ?? Exam::first();
+        $studyProgram = \App\Models\StudyProgram::where('name', $request->majorChoice1)->first();
+        $exam = null;
 
+        if ($studyProgram) {
+            $exam = Exam::where('status', 'active')
+                ->where('study_program_id', $studyProgram->id)
+                ->first();
+        }
+        
+        // Fallback ke ujian yang tidak ditujukan ke prodi tertentu (berlaku untuk semua)
         if (!$exam) {
-            return back()->withErrors(['msg' => 'Tidak ada ujian PMB yang aktif saat ini.']);
+            $exam = Exam::where('status', 'active')
+                ->whereNull('study_program_id')
+                ->first();
         }
 
-        $participant = Participant::create([
-            'exam_id' => $exam->id,
-            'name' => $request->fullName,
-            'school_origin' => $request->schoolOrigin,
-            'major_choice_1' => $request->majorChoice1,
-            'major_choice_2' => $request->majorChoice2,
-        ]);
+        if (!$exam) {
+            return back()->withErrors(['msg' => 'Ujian untuk program studi ini belum tersedia saat ini.']);
+        }
+
+        // Check if participant already exists for this exam
+        $existingParticipant = Participant::where('name', $request->fullName)
+            ->where('school_origin', $request->schoolOrigin)
+            ->where('exam_id', $exam->id)
+            ->first();
+
+        if ($existingParticipant) {
+            $session = ExamSession::where('participant_id', $existingParticipant->id)->latest()->first();
+            
+            if ($session && $session->status === 'finished') {
+                return back()->withInput()->withErrors(['fullName' => 'Data Anda tercatat sudah menyelesaikan ujian ini. Anda tidak diperkenankan mengikuti ujian lebih dari satu kali.']);
+            }
+            
+            // If ongoing or no session, use existing participant to resume
+            $participant = $existingParticipant;
+            
+            // Update major choice just in case they changed it
+            $participant->update([
+                'major_choice_1' => $request->majorChoice1
+            ]);
+        } else {
+            $participant = Participant::create([
+                'exam_id' => $exam->id,
+                'name' => $request->fullName,
+                'school_origin' => $request->schoolOrigin,
+                'major_choice_1' => $request->majorChoice1,
+            ]);
+        }
 
         Session::put('participant_id', $participant->id);
         Session::put('exam_id', $exam->id);
@@ -291,11 +326,10 @@ class StudentController extends Controller
         $session->violation_count = $newCount;
 
         if ($newCount >= $exam->max_violation) {
-            $session->security_status = 'Perlu Review Admin';
+            $session->security_status = 'Terindikasi Pelanggaran / Diblokir';
         } else if ($newCount > 0) {
             $session->security_status = 'Mendapat Peringatan';
         }
-
         $session->save();
 
         ExamActivityLog::create([
@@ -305,11 +339,22 @@ class StudentController extends Controller
             'violation_number' => $newCount,
         ]);
 
+        if ($newCount >= $exam->max_violation) {
+            $this->finalizeSession($session);
+            Session::forget(['participant_id', 'exam_id', 'exam_session_id']);
+            return response()->json([
+                'success' => true,
+                'violation_count' => $newCount,
+                'blocked' => true
+            ]);
+        }
+
         return response()->json([
             'success' => true,
             'violation_count' => $newCount,
             'max_violation' => $exam->max_violation,
             'security_status' => $session->security_status,
+            'blocked' => false
         ]);
     }
 
@@ -341,6 +386,14 @@ class StudentController extends Controller
     public function thankYou()
     {
         return view('student.thank-you');
+    }
+
+    /**
+     * Blocked Page
+     */
+    public function blocked()
+    {
+        return view('student.blocked');
     }
 
     /**

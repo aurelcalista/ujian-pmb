@@ -11,6 +11,10 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->call(CbtPmbSeeder::class);
+        $this->call([
+            StudyProgramSeeder::class,
+            CbtPmbSeeder::class,
+            ExamSeeder::class,
+        ]);
     }
 }

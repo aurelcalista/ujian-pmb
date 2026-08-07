@@ -3,7 +3,7 @@
 @section('title', 'Computer Based Test (CBT) PMB - Universitas Catur Insan Cendekia (UCIC)')
 
 @section('content')
-<div class="ucic-landing-bg position-relative min-vh-100 d-flex flex-column">
+<div class="ucic-landing-bg position-relative d-flex flex-column flex-grow-1">
 
     <!-- DECORATIVE BACKGROUND AMBIENT BLOBS & GEOMETRIC OVERLAY -->
     <div class="ambient-blob ambient-blob-1"></div>
@@ -245,44 +245,44 @@
         <div class="container">
             <div class="row g-4 justify-content-center">
                 
-                <!-- CARD 1: 90 MENIT DURASI UJIAN -->
+                <!-- CARD 1: LANGKAH 1 -->
                 <div class="col-md-4 col-12">
                     <div class="feature-card text-center text-md-start">
                         <div class="feature-icon-wrapper primary mx-auto mx-md-0">
-                            <i class="bi bi-clock-history"></i>
+                            <i class="bi bi-person-lines-fill"></i>
                         </div>
-                        <div class="feature-card-stat">90 Menit</div>
-                        <h5 class="feature-card-title">Durasi Ujian</h5>
+                        <div class="feature-card-stat">Langkah 1</div>
+                        <h5 class="feature-card-title">Isi Data Diri Lengkap</h5>
                         <p class="feature-card-desc">
-                            Waktu pengerjaan dialokasikan selama 90 menit dengan sistem timer otomatis dan fleksibel.
+                            Masukkan nama lengkap sesuai ijazah dan asal sekolah Anda (SMA/SMK/MA) pada form yang telah disediakan.
                         </p>
                     </div>
                 </div>
 
-                <!-- CARD 2: 50 SOAL PILIHAN GANDA -->
+                <!-- CARD 2: LANGKAH 2 -->
                 <div class="col-md-4 col-12">
                     <div class="feature-card text-center text-md-start">
                         <div class="feature-icon-wrapper secondary mx-auto mx-md-0">
-                            <i class="bi bi-file-earmark-text"></i>
+                            <i class="bi bi-journal-bookmark-fill"></i>
                         </div>
-                        <div class="feature-card-stat">50 Soal</div>
-                        <h5 class="feature-card-title">Pilihan Ganda</h5>
+                        <div class="feature-card-stat">Langkah 2</div>
+                        <h5 class="feature-card-title">Pilih Program Studi</h5>
                         <p class="feature-card-desc">
-                            Terdiri dari 50 butir soal pilihan ganda terstandarisasi untuk menilai potensi akademik peserta.
+                            Tentukan Pilihan Program Studi 1 dan 2 yang Anda minati dari daftar prodi yang tersedia.
                         </p>
                     </div>
                 </div>
 
-                <!-- CARD 3: TANPA LOGIN -->
+                <!-- CARD 3: LANGKAH 3 -->
                 <div class="col-md-4 col-12">
                     <div class="feature-card text-center text-md-start">
                         <div class="feature-icon-wrapper accent mx-auto mx-md-0">
-                            <i class="bi bi-shield-check"></i>
+                            <i class="bi bi-laptop"></i>
                         </div>
-                        <div class="feature-card-stat">Tanpa Login</div>
-                        <h5 class="feature-card-title">Isi Biodata & Mulai Ujian</h5>
+                        <div class="feature-card-stat">Langkah 3</div>
+                        <h5 class="feature-card-title">Lanjut ke Ujian</h5>
                         <p class="feature-card-desc">
-                            Akses mudah dan efisien. Cukup mengisi data peserta secara valid lalu ujian dapat langsung dimulai.
+                            Setelah data dipastikan benar, klik tombol lanjut untuk membaca petunjuk dan segera memulai ujian CBT.
                         </p>
                     </div>
                 </div>
@@ -291,23 +291,23 @@
         </div>
     </section>
 
-    <!-- FOOTER -->
-    <footer class="bg-white border-top py-3 py-md-4 mt-auto position-relative" style="z-index: 10;">
-        <div class="container">
-            <div class="d-flex flex-column flex-md-row align-items-center justify-content-between text-center text-md-start gap-3">
-                <div class="d-flex align-items-center justify-content-center justify-content-md-start gap-3 flex-wrap flex-sm-nowrap">
-                    <img src="{{ asset('images/logo-ucic.png') }}" alt="UCIC Logo" style="height: 36px; width: auto; object-fit: contain;">
-                    <div>
-                        <strong class="d-block text-ucic-primary" style="font-size: 0.92rem;">Universitas Catur Insan Cendekia (UCIC)</strong>
-                        <small class="text-muted d-block" style="font-size: 0.76rem;">Sistem Computer Based Test (CBT) Penerimaan Mahasiswa Baru</small>
-                    </div>
-                </div>
-                <div class="text-center text-md-end">
-                    <span class="text-muted small" style="font-size: 0.78rem;">&copy; {{ date('Y') }} PMB UCIC. All Rights Reserved.</span>
+</div>
+
+<!-- FOOTER -->
+<footer class="bg-white border-top py-4 mt-auto position-relative w-100" style="z-index: 10;">
+    <div class="container">
+        <div class="d-flex flex-column flex-md-row align-items-center justify-content-between text-center text-md-start gap-3">
+            <div class="d-flex align-items-center justify-content-center justify-content-md-start gap-3 flex-wrap flex-sm-nowrap">
+                <img src="{{ asset('images/logo-ucic.png') }}" alt="UCIC Logo" style="height: 36px; width: auto; object-fit: contain;">
+                <div>
+                    <strong class="d-block text-ucic-primary" style="font-size: 0.92rem;">Universitas Catur Insan Cendekia (UCIC)</strong>
+                    <small class="text-muted d-block" style="font-size: 0.76rem;">Sistem Computer Based Test (CBT) Penerimaan Mahasiswa Baru</small>
                 </div>
             </div>
+            <div class="text-center text-md-end">
+                <span class="text-muted small" style="font-size: 0.78rem;">&copy; {{ date('Y') }} PMB UCIC. All Rights Reserved.</span>
+            </div>
         </div>
-    </footer>
-
-</div>
+    </div>
+</footer>
 @endsection

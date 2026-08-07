@@ -15,7 +15,7 @@
     </a>
 </div>
 
-<form action="{{ url('/admin/exams') }}" method="POST" id="createExamForm">
+<form action="{{ url('/admin/exams') }}" method="POST" id="createExamForm" enctype="multipart/form-data">
     @csrf
 
     <!-- CARD 1: INFORMASI UJIAN -->
@@ -28,13 +28,25 @@
             <!-- Judul Ujian -->
             <div class="mb-3">
                 <label for="title" class="form-label-ucic">Judul Ujian <span class="text-danger">*</span></label>
-                <input type="text" class="form-control form-control-ucic" id="title" name="title" placeholder="Contoh: Ujian Seleksi PMB Gelombang 1 UCIC" required>
+                <input type="text" class="form-control form-control-ucic" id="title" name="title" placeholder="Masukkan Judul Ujian" required>
             </div>
 
             <!-- Deskripsi / Kategori -->
             <div class="mb-3">
                 <label for="description" class="form-label-ucic">Deskripsi / Kategori Ujian <span class="text-danger">*</span></label>
-                <input type="text" class="form-control form-control-ucic" id="description" name="description" placeholder="Contoh: Tes Potensi Akademik, Logika Penalaran, dan Bahasa Inggris" required>
+                <input type="text" class="form-control form-control-ucic" id="description" name="description" placeholder="Masukkan deskripsi ujian" required>
+            </div>
+
+
+
+            <!-- Status Ujian -->
+            <div class="mb-3">
+                <label for="status" class="form-label-ucic">Status Ujian <span class="text-danger">*</span></label>
+                <select class="form-select form-control-ucic" id="status" name="status" required>
+                    <option value="draft">Draft (Disembunyikan)</option>
+                    <option value="active" selected>Active (Ditampilkan ke Peserta)</option>
+                </select>
+                <small class="text-muted" style="font-size: 0.78rem;">Hanya boleh ada 1 ujian yang aktif dalam satu waktu.</small>
             </div>
 
             <!-- Waktu Mulai, Waktu Selesai, Durasi -->
@@ -87,9 +99,6 @@
     <!-- CARD 2: DYNAMIC QUESTIONS BUILDER -->
     <div class="d-flex align-items-center justify-content-between mb-3">
         <h5 class="fw-bold m-0 text-dark">Daftar Soal Ujian</h5>
-        <button type="button" class="btn btn-outline-primary btn-sm px-3 py-2 rounded-3 fw-semibold" id="btnAddQuestion">
-            <i class="bi bi-plus-circle-fill me-1"></i> Tambah Soal
-        </button>
     </div>
 
     <div id="questionsContainer" class="space-y-4">
@@ -107,6 +116,11 @@
                     <div class="col-md-9">
                         <label class="form-label-ucic">Pertanyaan <span class="text-danger">*</span></label>
                         <textarea class="form-control form-control-ucic" name="questions[0][text]" rows="3" placeholder="Tuliskan pertanyaan di sini..." required></textarea>
+                        
+                        <div class="mt-2">
+                            <label class="form-label-ucic text-muted" style="font-size: 0.8rem;">Gambar Soal (Opsional, Maks 2MB)</label>
+                            <input type="file" class="form-control form-control-sm" name="questions[0][image]" accept="image/*">
+                        </div>
                     </div>
                     <div class="col-md-3">
                         <label class="form-label-ucic">Bobot Nilai</label>
@@ -153,6 +167,12 @@
         </div>
     </div>
 
+    <div class="mt-4 mb-2">
+        <button type="button" class="btn btn-outline-primary px-4 py-2 rounded-3 fw-semibold w-100" id="btnAddQuestion" style="border-style: dashed; border-width: 2px;">
+            <i class="bi bi-plus-circle-fill me-2"></i> Tambah Soal Baru
+        </button>
+    </div>
+
     <!-- ACTION SUBMIT BUTTON -->
     <div class="d-flex justify-content-end gap-3 mt-4 mb-5">
         <a href="{{ url('/admin/exams') }}" class="btn btn-light px-4 py-2.5 fw-semibold rounded-3">Batal</a>
@@ -187,6 +207,11 @@ document.addEventListener('DOMContentLoaded', function () {
                         <div class="col-md-9">
                             <label class="form-label-ucic">Pertanyaan <span class="text-danger">*</span></label>
                             <textarea class="form-control form-control-ucic" name="questions[${qIdx}][text]" rows="3" placeholder="Tuliskan pertanyaan di sini..." required></textarea>
+                            
+                            <div class="mt-2">
+                                <label class="form-label-ucic text-muted" style="font-size: 0.8rem;">Gambar Soal (Opsional, Maks 2MB)</label>
+                                <input type="file" class="form-control form-control-sm" name="questions[${qIdx}][image]" accept="image/*">
+                            </div>
                         </div>
                         <div class="col-md-3">
                             <label class="form-label-ucic">Bobot Nilai</label>
@@ -256,6 +281,31 @@ document.addEventListener('DOMContentLoaded', function () {
             if (titleEl) titleEl.textContent = `Soal #${index + 1}`;
         });
     }
+
+    // Image Preview Feature
+    document.addEventListener('change', function(e) {
+        if (e.target.matches('input[type="file"][accept="image/*"]')) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    // Find or create preview container
+                    let container = e.target.closest('.col-md-9').querySelector('.image-preview-container');
+                    if (!container) {
+                        container = document.createElement('div');
+                        container.className = 'image-preview-container mb-2 mt-2';
+                        e.target.parentNode.insertBefore(container, e.target);
+                    }
+                    container.innerHTML = `<img src="${evt.target.result}" alt="Preview" class="img-thumbnail border border-primary shadow-sm" style="max-height: 150px;">`;
+                    
+                    // Hide existing image container if any
+                    const existingImg = e.target.closest('.col-md-9').querySelector('.existing-image-container');
+                    if(existingImg) existingImg.style.display = 'none';
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+    });
 });
 </script>
 @endpush

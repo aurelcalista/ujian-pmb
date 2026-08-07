@@ -29,10 +29,11 @@
         <table class="table table-ucic align-middle mb-0">
             <thead>
                 <tr>
-                    <th style="width: 30%;">Judul Ujian</th>
-                    <th style="width: 25%;">Deskripsi / Kategori</th>
+                    <th style="width: 25%;">Judul Ujian</th>
+                    <th style="width: 20%;">Deskripsi / Kategori</th>
                     <th style="width: 25%;">Waktu Pelaksanaan</th>
                     <th style="width: 10%;">Durasi</th>
+                    <th style="width: 10%;">Status</th>
                     <th style="width: 10%;" class="text-center">Aksi</th>
                 </tr>
             </thead>
@@ -57,11 +58,18 @@
                     <td>
                         <span class="fw-semibold text-dark" style="font-size: 0.88rem;">{{ $exam->duration }} menit</span>
                     </td>
+                    <td>
+                        @if($exam->status == 'active')
+                            <span class="badge bg-success">Active</span>
+                        @else
+                            <span class="badge bg-secondary">Draft</span>
+                        @endif
+                    </td>
                     <td class="text-center">
                         <div class="d-flex align-items-center justify-content-center gap-1.5">
-                            <!-- Button Monitoring Hasil Ujian -->
-                            <a href="{{ url('/admin/exams/' . $exam->id . '/results') }}" class="btn btn-sm btn-outline-info p-2 rounded-2" title="Monitoring Hasil Ujian" style="width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center;">
-                                <i class="bi bi-bar-chart-fill fs-6"></i>
+                            <!-- Button Detail Soal dan Jawaban -->
+                            <a href="{{ url('/admin/exams/' . $exam->id) }}" class="btn btn-sm btn-outline-info p-2 rounded-2" title="Detail Soal dan Jawaban" style="width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center;">
+                                <i class="bi bi-card-list fs-6"></i>
                             </a>
 
                             <!-- Button Edit Ujian -->
@@ -82,7 +90,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="5" class="text-center py-5 text-muted">
+                    <td colspan="6" class="text-center py-5 text-muted">
                         <i class="bi bi-journal-x fs-1 d-block mb-2 text-muted"></i>
                         <h6>Belum ada daftar ujian yang dibuat.</h6>
                         <p class="small mb-3">Klik tombol "Tambah Ujian" di atas untuk membuat ujian baru.</p>
@@ -93,5 +101,11 @@
             </tbody>
         </table>
     </div>
+
+    @if($exams->hasPages())
+    <div class="ucic-card-footer border-top bg-white p-3">
+        {{ $exams->links() }}
+    </div>
+    @endif
 </div>
 @endsection

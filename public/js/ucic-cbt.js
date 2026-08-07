@@ -172,14 +172,23 @@ document.addEventListener('DOMContentLoaded', function () {
     const chartCanvas = document.getElementById('participantChart');
     if (chartCanvas && typeof Chart !== 'undefined') {
         const ctx = chartCanvas.getContext('2d');
+        
+        let labels = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
+        let dataCounts = [42, 65, 88, 120, 95, 145, 180];
+        
+        if (window.cbtChartData) {
+            labels = window.cbtChartData.labels;
+            dataCounts = window.cbtChartData.data;
+        }
+
         new Chart(ctx, {
             type: 'line',
             data: {
-                labels: ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'],
+                labels: labels,
                 datasets: [
                     {
-                        label: 'Peserta Selesai Ujian',
-                        data: [42, 65, 88, 120, 95, 145, 180],
+                        label: 'Peserta Baru Terdaftar',
+                        data: dataCounts,
                         borderColor: '#005BAC',
                         backgroundColor: 'rgba(0, 91, 172, 0.08)',
                         fill: true,
@@ -187,17 +196,6 @@ document.addEventListener('DOMContentLoaded', function () {
                         borderWidth: 3,
                         pointBackgroundColor: '#005BAC',
                         pointRadius: 5
-                    },
-                    {
-                        label: 'Peserta Baru Terdaftar',
-                        data: [50, 75, 95, 130, 110, 160, 210],
-                        borderColor: '#2F80ED',
-                        backgroundColor: 'rgba(47, 128, 237, 0.04)',
-                        fill: true,
-                        tension: 0.4,
-                        borderWidth: 2,
-                        borderDash: [5, 5],
-                        pointRadius: 3
                     }
                 ]
             },

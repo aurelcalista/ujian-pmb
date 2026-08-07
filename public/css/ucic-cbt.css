@@ -73,7 +73,7 @@ body {
 .ucic-landing-bg {
     position: relative;
     background-color: var(--ucic-bg);
-    overflow-x: clip;
+    overflow: hidden;
 }
 
 .ambient-blob {

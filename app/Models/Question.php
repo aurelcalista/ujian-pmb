@@ -12,6 +12,7 @@ class Question extends Model
         'exam_id',
         'question_text',
         'weight',
+        'image',
     ];
 
     public function exam()

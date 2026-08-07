@@ -46,19 +46,19 @@
                     <span>Dashboard</span>
                 </a>
 
-                <a href="{{ url('/admin/participants') }}" class="sidebar-link @if(request()->is('admin/participants')) active @endif">
-                    <i class="bi bi-people-fill"></i>
-                    <span>Peserta Ujian</span>
-                </a>
-
-                <a href="{{ url('/admin/exams') }}" class="sidebar-link @if(request()->is('admin/exams*') || request()->is('admin/questions*')) active @endif">
+                <a href="{{ url('/admin/exams') }}" class="sidebar-link @if(request()->is('admin/exams*') && !request()->is('admin/exams/*/results') || request()->is('admin/questions*')) active @endif">
                     <i class="bi bi-card-checklist"></i>
                     <span>Ujian</span>
                 </a>
 
-                <a href="{{ url('/admin/results') }}" class="sidebar-link @if(request()->is('admin/results')) active @endif">
-                    <i class="bi bi-trophy-fill"></i>
-                    <span>Hasil Ujian</span>
+                <a href="{{ url('/admin/results') }}" class="sidebar-link @if(request()->is('admin/results') || request()->is('admin/exams/*/results')) active @endif">
+                    <i class="bi bi-people-fill"></i>
+                    <span>Peserta & Hasil Ujian</span>
+                </a>
+
+                <a href="{{ url('/admin/study-programs') }}" class="sidebar-link @if(request()->is('admin/study-programs')) active @endif">
+                    <i class="bi bi-journal-bookmark-fill"></i>
+                    <span>Program Studi</span>
                 </a>
 
                 <div class="text-uppercase text-muted fw-bold px-3 mt-3 mb-2" style="font-size: 0.65rem; letter-spacing: 0.8px;">Sistem</div>
@@ -94,12 +94,6 @@
                 </div>
 
                 <div class="d-flex align-items-center gap-2 sm:gap-3">
-                    <!-- Notification Icon -->
-                    <div class="position-relative cursor-pointer me-1">
-                        <i class="bi bi-bell fs-5 text-muted"></i>
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.58rem;">3</span>
-                    </div>
-
                     <!-- Dark Mode / Light Mode Toggle -->
                     <button class="btn btn-topbar-icon me-1" type="button" onclick="toggleTheme()" title="Beralih Mode Gelap/Terang">
                         <i class="bi bi-moon-stars-fill fs-5 text-muted theme-toggle-icon"></i>
@@ -127,7 +121,42 @@
 
     <!-- Bootstrap 5 Bundle JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="{{ asset('js/ucic-cbt.js') }}"></script>
+    
+    <!-- SweetAlert Flash Message Handler -->
+    @if(session('success'))
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            Swal.fire({
+                title: 'Berhasil!',
+                text: '{{ session('success') }}',
+                icon: 'success',
+                timer: 3000,
+                showConfirmButton: false,
+                toast: true,
+                position: 'top-end'
+            });
+        });
+    </script>
+    @endif
+    @if(session('error'))
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            Swal.fire({
+                title: 'Gagal!',
+                text: '{{ session('error') }}',
+                icon: 'error',
+                timer: 3000,
+                showConfirmButton: false,
+                toast: true,
+                position: 'top-end'
+            });
+        });
+    </script>
+    @endif
+
     @stack('scripts')
 </body>
 </html>

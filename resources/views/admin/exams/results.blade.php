@@ -77,8 +77,16 @@
 
 <!-- DAFTAR NILAI PESERTA TABLE CARD (Matching Image #1 Structure) -->
 <div class="ucic-card">
-    <div class="ucic-card-header bg-light">
+    <div class="ucic-card-header bg-light d-flex justify-content-between align-items-center">
         <h6 class="fw-bold m-0 text-dark">Daftar Nilai Peserta</h6>
+        <form method="GET" action="{{ url('/admin/exams/'.$exam->id.'/results') }}" class="d-flex align-items-center gap-2">
+            <select name="prodi" class="form-select form-select-sm border-0 shadow-sm" style="min-width: 200px;" onchange="this.form.submit()">
+                <option value="">Semua Program Studi</option>
+                @foreach($prodis as $prodi)
+                    <option value="{{ $prodi }}" {{ request('prodi') == $prodi ? 'selected' : '' }}>{{ $prodi }}</option>
+                @endforeach
+            </select>
+        </form>
     </div>
 
     <div class="table-responsive">
@@ -124,7 +132,7 @@
                     }
                 @endphp
                 <tr>
-                    <td>{{ $index + 1 }}</td>
+                    <td>{{ $sessions->firstItem() + $index }}</td>
                     <td>
                         <div class="fw-bold text-dark" style="font-size: 0.92rem;">{{ $session->participant->name ?? 'Peserta' }}</div>
                         <small class="text-muted d-block" style="font-size: 0.72rem;">Prodi: {{ $session->participant->major_choice_1 ?? '-' }}</small>
@@ -161,6 +169,10 @@
                             <span class="badge bg-success-subtle text-success border border-success rounded-pill px-3 py-1 fw-semibold" style="font-size: 0.75rem;">
                                 Selesai
                             </span>
+                        @elseif($session->status === 'ongoing')
+                            <span class="badge bg-warning-subtle text-warning border border-warning rounded-pill px-3 py-1 fw-semibold" style="font-size: 0.75rem;">
+                                Sedang Ujian
+                            </span>
                         @else
                             <span class="badge bg-light text-muted border rounded-pill px-3 py-1 fw-semibold" style="font-size: 0.75rem;">
                                 Belum Mengerjakan
@@ -168,13 +180,32 @@
                         @endif
                     </td>
                     <td class="text-center">
-                        @if($session->status === 'finished')
-                            <button type="button" class="btn btn-outline-danger btn-sm px-3 rounded-2 fw-medium" style="font-size: 0.78rem; border-color: #F87171; color: #DC2626;" data-bs-toggle="modal" data-bs-target="#detailModal{{ $session->id }}">
-                                Lihat Detail
-                            </button>
-                        @else
-                            <span class="text-muted small">-</span>
-                        @endif
+                        <div class="d-flex justify-content-center gap-1">
+                            @if($session->status === 'finished')
+                                <button class="btn btn-outline-danger btn-sm px-3 rounded-2 fw-medium" style="font-size: 0.78rem; border-color: #F87171; color: #DC2626;" data-bs-toggle="modal" data-bs-target="#detailModal{{ $session->id }}" title="Lihat Detail">
+                                    <i class="bi bi-file-text"></i>
+                                </button>
+                            @else
+                                <span class="btn btn-sm text-muted" style="pointer-events: none;">-</span>
+                            @endif
+
+                            @if($session->violation_count >= ($session->exam->max_violation ?? 3) || str_contains($session->security_status, 'Diblokir'))
+                                <form action="{{ url('/admin/sessions/' . $session->id . '/unblock') }}" method="POST" id="unblockForm{{ $session->id }}">
+                                    @csrf
+                                    <button type="button" class="btn btn-sm btn-outline-success rounded-2 btn-unblock-session" data-id="{{ $session->id }}" title="Buka Blokir & Ujian Ulang">
+                                        <i class="bi bi-unlock-fill"></i>
+                                    </button>
+                                </form>
+                            @endif
+
+                            <form action="{{ url('/admin/sessions/' . $session->id) }}" method="POST" id="deleteForm{{ $session->id }}">
+                                @csrf
+                                @method('DELETE')
+                                <button type="button" class="btn btn-sm btn-outline-secondary rounded-2 btn-delete-session" data-id="{{ $session->id }}" title="Hapus Data">
+                                    <i class="bi bi-trash-fill"></i>
+                                </button>
+                            </form>
+                        </div>
                     </td>
                 </tr>
 
@@ -221,6 +252,31 @@
                                     <span class="text-success small"><i class="bi bi-shield-check me-1"></i>Tidak ada aktivitas pelanggaran yang tercatat selama ujian. Status Peserta: Aman.</span>
                                     @endforelse
                                 </div>
+
+                                <h6 class="fw-bold text-ucic-primary mb-2 mt-4"><i class="bi bi-list-check me-1"></i> Detail Jawaban Peserta</h6>
+                                <div class="border rounded-3 p-3 mb-4 bg-white" style="max-height: 250px; overflow-y: auto;">
+                                    @forelse($session->answers as $index => $ans)
+                                    <div class="d-flex align-items-center justify-content-between border-bottom py-2 small">
+                                        <div>
+                                            <strong>Soal {{ $index + 1 }}:</strong> 
+                                            <span class="text-muted">{!! strip_tags(Str::limit($ans->question->question_text ?? 'Soal dihapus', 60)) !!}</span>
+                                        </div>
+                                        <div>
+                                            @if($ans->option)
+                                                @if($ans->option->is_correct)
+                                                    <span class="badge bg-success-subtle text-success border border-success"><i class="bi bi-check-circle me-1"></i>Benar</span>
+                                                @else
+                                                    <span class="badge bg-danger-subtle text-danger border border-danger"><i class="bi bi-x-circle me-1"></i>Salah</span>
+                                                @endif
+                                            @else
+                                                <span class="badge bg-light text-muted border">Kosong</span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                    @empty
+                                    <span class="text-muted small">Belum ada jawaban.</span>
+                                    @endforelse
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -233,5 +289,65 @@
             </tbody>
         </table>
     </div>
+    
+    @if($sessions->hasPages())
+    <div class="ucic-card-footer border-top bg-white p-3">
+        {{ $sessions->links() }}
+    </div>
+    @endif
 </div>
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const deleteButtons = document.querySelectorAll('.btn-delete-session');
+    
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const sessionId = this.getAttribute('data-id');
+            const form = document.getElementById('deleteForm' + sessionId);
+            
+            Swal.fire({
+                title: 'Apakah Anda yakin?',
+                text: "Data peserta ini beserta seluruh riwayat ujian, jawaban, dan rekaman kecurangannya akan dihapus secara permanen dari database!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Ya, Hapus Data!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+        });
+    });
+
+    const unblockButtons = document.querySelectorAll('.btn-unblock-session');
+    
+    unblockButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const sessionId = this.getAttribute('data-id');
+            const form = document.getElementById('unblockForm' + sessionId);
+            
+            Swal.fire({
+                title: 'Buka Akses Ujian?',
+                text: "Peserta yang sudah diblokir akan dipulihkan aksesnya. Mereka bisa melanjutkan ujian dari soal terakhir tanpa kehilangan jawaban sebelumnya. Log pelanggaran juga akan direset.",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#198754',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Ya, Buka Blokir!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+        });
+    });
+});
+</script>
+@endpush

@@ -20,7 +20,7 @@ class CbtPmbSeeder extends Seeder
         Admin::updateOrCreate(
             ['email' => 'admin@cic.ac.id'],
             [
-                'name' => 'Panitia PMB Administrator',
+                'name' => 'PMB Administrator',
                 'password' => Hash::make('admin123'),
             ]
         );

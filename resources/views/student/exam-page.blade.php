@@ -25,19 +25,21 @@
                 </div>
 
                 <div id="violationCounterContainer">
-                    <span class="badge bg-warning-subtle text-dark border border-warning px-3 py-1.5 rounded-pill fw-bold" style="font-size: 0.82rem;">
-                        <i class="bi bi-shield-exclamation text-warning me-1"></i> Pelanggaran: <span id="violationCountDisplay">{{ $session->violation_count }}</span>/{{ $exam->max_violation }}
+                    <span class="badge bg-warning-subtle text-dark border border-warning px-2 px-md-3 py-1 py-md-1.5 rounded-pill fw-bold" style="font-size: 0.82rem;">
+                        <i class="bi bi-shield-exclamation text-warning me-0 me-sm-1"></i> 
+                        <span class="d-none d-sm-inline">Pelanggaran: </span><span id="violationCountDisplay">{{ $session->violation_count }}</span>/{{ $exam->max_violation }}
                     </span>
                 </div>
             </div>
 
             <!-- Right: Timer & Mobile Navigation Toggle -->
-            <div class="d-flex align-items-center gap-3">
-                <div class="cbt-timer" id="cbtTimerDisplay">
+            <div class="d-flex align-items-center gap-2 gap-md-3">
+                <div class="cbt-timer px-2 px-md-3" id="cbtTimerDisplay">
                     <i class="bi bi-clock-history"></i>
-                    <span id="timerText">00:00:00</span>
+                    <span id="timerText" class="d-none d-sm-inline">00:00:00</span>
+                    <span id="timerTextMobile" class="d-inline d-sm-none" style="font-size: 0.85rem;">00:00</span>
                 </div>
-                <button class="btn btn-outline-primary d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#cbtSidebarOffcanvas">
+                <button class="btn btn-outline-primary d-lg-none px-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#cbtSidebarOffcanvas">
                     <i class="bi bi-grid-3x3-gap-fill fs-5"></i>
                 </button>
             </div>
@@ -54,14 +56,14 @@
             <div class="ucic-card h-100 d-flex flex-column" id="mainQuestionCard">
                 
                 <!-- Question Card Header -->
-                <div class="ucic-card-header d-flex align-items-center justify-content-between bg-light">
+                <div class="ucic-card-header d-flex flex-wrap align-items-center justify-content-between gap-3 bg-light">
                     <div class="d-flex align-items-center gap-2">
-                        <span class="badge bg-ucic-primary px-3 py-2 fs-6 rounded-pill" id="currentQuestionTitle">Soal No. 1</span>
+                        <span class="badge bg-ucic-primary px-2 px-md-3 py-1 py-md-2 fs-6 rounded-pill" id="currentQuestionTitle">Soal No. 1</span>
                         <span class="text-muted small">dari {{ count($orderedQuestions) }} Soal</span>
                     </div>
 
                     <button type="button" class="btn btn-sm btn-outline-warning fw-semibold px-3 rounded-pill" id="btnFlagQuestion">
-                        <i class="bi bi-flag-fill me-1"></i> Tandai Ragu-ragu
+                        <i class="bi bi-flag-fill"></i> <span class="d-none d-sm-inline ms-1">Tandai Ragu-ragu</span>
                     </button>
                 </div>
 
@@ -78,17 +80,17 @@
                 </div>
 
                 <!-- Bottom Question Navigation Toolbar -->
-                <div class="p-3 p-md-4 border-top bg-light d-flex align-items-center justify-content-between rounded-bottom-4">
-                    <button class="btn btn-outline-secondary px-4 py-2 fw-semibold rounded-3" id="btnPrevQuestion">
-                        <i class="bi bi-chevron-left me-1"></i> Sebelumnya
+                <div class="p-3 p-md-4 border-top bg-light d-flex flex-wrap align-items-center justify-content-between gap-2 rounded-bottom-4">
+                    <button class="btn btn-outline-secondary px-3 px-md-4 py-2 fw-semibold rounded-3" id="btnPrevQuestion">
+                        <i class="bi bi-chevron-left"></i> <span class="d-none d-sm-inline ms-1">Sebelumnya</span>
                     </button>
 
-                    <div class="d-flex align-items-center gap-2">
-                        <button class="btn btn-ucic-secondary px-4 py-2 fw-semibold rounded-3" id="btnNextQuestion">
-                            <span>Selanjutnya</span> <i class="bi bi-chevron-right ms-1"></i>
+                    <div class="d-flex align-items-center gap-2 ms-auto">
+                        <button class="btn btn-ucic-secondary px-3 px-md-4 py-2 fw-semibold rounded-3" id="btnNextQuestion">
+                            <span class="d-none d-sm-inline me-1">Selanjutnya</span> <i class="bi bi-chevron-right"></i>
                         </button>
 
-                        <button class="btn btn-success px-4 py-2 fw-semibold rounded-3 d-none" id="btnFinishTrigger" data-bs-toggle="modal" data-bs-target="#finishModal">
+                        <button class="btn btn-success px-3 px-md-4 py-2 fw-semibold rounded-3 d-none text-nowrap" id="btnFinishTrigger" data-bs-toggle="modal" data-bs-target="#finishModal">
                             <i class="bi bi-check-circle-fill me-1"></i> Selesai Ujian
                         </button>
                     </div>
@@ -245,15 +247,16 @@ window.CBT_EXAM_CONFIG = {
     maxViolation: {{ $exam->max_violation ?? 3 }},
     violationCount: {{ $session->violation_count ?? 0 }},
     remainingSeconds: {{ $remainingSeconds }},
-    antiCheatEnabled: {{ $exam->anti_cheat_enabled ? 'true' : 'false' }},
-    fullscreenEnabled: {{ $exam->fullscreen_enabled ? 'true' : 'false' }},
     autosaveEnabled: {{ $exam->autosave_enabled ? 'true' : 'false' }},
+    antiCheatEnabled: {{ $exam->anti_cheat_enabled ? 'true' : 'false' }},
+    sessionDuration: {{ $exam->duration * 60 }},
     questions: [
         @foreach($orderedQuestions as $index => $q)
         {
             id: {{ $q->id }},
             number: {{ $index + 1 }},
             text: `{!! addslashes($q->question_text) !!}`,
+            image: `{!! $q->image ? asset('storage/' . $q->image) : '' !!}`,
             weight: {{ $q->weight }},
             savedOptionId: {{ isset($savedAnswers[$q->id]) && $savedAnswers[$q->id]->option_id ? $savedAnswers[$q->id]->option_id : 'null' }},
             isDoubt: {{ isset($savedAnswers[$q->id]) && $savedAnswers[$q->id]->is_doubt ? 'true' : 'false' }},
@@ -363,7 +366,8 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('currentQuestionTitle').textContent = `Soal No. ${q.number}`;
 
         // Question Text Body
-        document.getElementById('questionTextContainer').innerHTML = `
+        let imageHtml = q.image ? '<div class="mb-3 text-center"><img src="' + q.image + '" alt="Gambar Soal" class="img-fluid rounded border" style="max-height: 250px;"></div>' : '';
+        document.getElementById('questionTextContainer').innerHTML = imageHtml + `
             <p class="fw-medium mb-3">${q.text}</p>
             <p class="text-secondary small mb-0">Pilihlah salah satu jawaban yang Anda anggap paling benar di bawah ini:</p>
         `;
@@ -485,15 +489,78 @@ document.addEventListener('DOMContentLoaded', function () {
         const formatted = `${hrs}:${mins}:${secs}`;
 
         timerDisplay.textContent = formatted;
+        
+        const timerDisplayMobile = document.getElementById('timerTextMobile');
+        if (timerDisplayMobile) {
+            timerDisplayMobile.textContent = `${hrs > 0 ? hrs + ':' : ''}${mins}:${secs}`;
+        }
+        
         document.getElementById('modalSummaryTimer').textContent = formatted;
     }, 1000);
 
     // 4. Anti-Cheat & Alarm Warning Popup System
     let isWarningModalOpen = false;
 
+    function playAlarmSound() {
+        try {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            if (!AudioContext) return;
+            const audioCtx = new AudioContext();
+            
+            // Create 3 rapid beeps
+            for (let i = 0; i < 3; i++) {
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                
+                oscillator.type = 'square';
+                oscillator.frequency.setValueAtTime(800, audioCtx.currentTime + (i * 0.3));
+                oscillator.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + (i * 0.3) + 0.1);
+                
+                gainNode.gain.setValueAtTime(0, audioCtx.currentTime + (i * 0.3));
+                gainNode.gain.linearRampToValueAtTime(0.5, audioCtx.currentTime + (i * 0.3) + 0.05);
+                gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + (i * 0.3) + 0.2);
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                
+                oscillator.start(audioCtx.currentTime + (i * 0.3));
+                oscillator.stop(audioCtx.currentTime + (i * 0.3) + 0.2);
+            }
+        } catch (e) {
+            console.error("Audio API not supported or blocked");
+        }
+    }
+
     function handleViolation(activityType, description) {
         if (!config.antiCheatEnabled || isWarningModalOpen) return;
 
+        // Show Warning Modal Immediately Client-Side
+        isWarningModalOpen = true;
+        config.violationCount++;
+        const vCount = config.violationCount;
+        
+        document.getElementById('violationCountDisplay').textContent = vCount;
+        playAlarmSound();
+
+        const modalTitle = document.getElementById('warningModalTitle');
+        const modalBody = document.getElementById('warningModalBody');
+
+        if (vCount < config.maxViolation) {
+            modalTitle.textContent = `⚠️ PERINGATAN ${vCount}/${config.maxViolation}`;
+            modalBody.textContent = 'Anda terdeteksi meninggalkan halaman ujian atau keluar dari mode fullscreen. Mohon kembali fokus mengerjakan. Aktivitas mencurigakan telah dicatat.';
+        } else {
+            modalTitle.textContent = '🚨 UJIAN DIBLOKIR KARENA PELANGGARAN';
+            modalBody.textContent = 'Batas pelanggaran maksimal telah tercapai. Ujian Anda dihentikan secara paksa, disubmit otomatis, dan dilaporkan kepada Admin Ujian.';
+            document.getElementById('btnAcknowledgeWarning').textContent = 'Keluar Ujian';
+            document.getElementById('btnAcknowledgeWarning').classList.remove('btn-warning');
+            document.getElementById('btnAcknowledgeWarning').classList.add('btn-danger');
+        }
+
+        const warningModalEl = document.getElementById('warningModal');
+        const modalInstance = new bootstrap.Modal(warningModalEl);
+        modalInstance.show();
+
+        // Sync with Server Asynchronously
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
         fetch('/student/log-violation', {
             method: 'POST',
@@ -502,47 +569,21 @@ document.addEventListener('DOMContentLoaded', function () {
                 'X-CSRF-TOKEN': csrfToken,
                 'Accept': 'application/json'
             },
+            keepalive: true, // helps ensure request finishes when backgrounded
             body: JSON.stringify({
                 session_id: config.sessionId,
                 activity_type: activityType,
                 description: description
             })
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                const vCount = data.violation_count;
-                document.getElementById('violationCountDisplay').textContent = vCount;
-
-                // Play Audio Alarm
-                playAlarmSound();
-
-                // Build Warning Popup Content
-                const modalTitle = document.getElementById('warningModalTitle');
-                const modalBody = document.getElementById('warningModalBody');
-
-                if (vCount === 1) {
-                    modalTitle.textContent = '⚠️ PERINGATAN 1/3';
-                    modalBody.textContent = 'Anda terdeteksi meninggalkan halaman ujian atau keluar dari mode fullscreen. Mohon kembali fokus mengerjakan. Aktivitas telah dicatat.';
-                } else if (vCount === 2) {
-                    modalTitle.textContent = '⚠️ PERINGATAN 2/3';
-                    modalBody.textContent = 'Aktivitas mencurigakan kembali terdeteksi. Satu pelanggaran lagi akan dilaporkan langsung ke Administrator.';
-                } else {
-                    modalTitle.textContent = '🚨 PERINGATAN TERAKHIR 3/3';
-                    modalBody.textContent = 'Batas pelanggaran telah tercapai. Aktivitas Anda telah dilaporkan kepada Admin Ujian. Tetap selesaikan sisa soal hingga waktu berakhir.';
-                }
-
-                // Trigger Modal
-                isWarningModalOpen = true;
-                const warningModalEl = document.getElementById('warningModal');
-                const modalInstance = new bootstrap.Modal(warningModalEl);
-                modalInstance.show();
-            }
-        });
+        }).catch(e => console.log('Network sync delayed'));
     }
 
     // Acknowledge Warning & Re-enforce Fullscreen
     document.getElementById('btnAcknowledgeWarning').addEventListener('click', () => {
+        if (config.violationCount >= config.maxViolation) {
+            window.location.href = '/student/blocked';
+            return;
+        }
         isWarningModalOpen = false;
         const warningModalEl = document.getElementById('warningModal');
         const modalInstance = bootstrap.Modal.getInstance(warningModalEl);
@@ -570,8 +611,32 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // Initial Start: Render Q1 & Request Fullscreen
-    renderQuestion(0);
+    if (config.questions.length > 0) {
+        renderQuestion(0);
+    } else {
+        document.getElementById('questionTextContainer').innerHTML = '<div class="alert alert-warning">Soal tidak ditemukan. Mungkin soal baru saja ditambahkan setelah Anda mulai ujian. Harap hubungi Admin.</div>';
+    }
+    
     setTimeout(requestFullscreenMode, 1000);
+
+    // Initialize AudioContext on first user interaction to bypass mobile auto-play policies
+    document.addEventListener('click', function initAudio() {
+        if (!window.audioCtxInited) {
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (AudioContext) {
+                    const ctx = new AudioContext();
+                    // Play silent sound to unlock
+                    const osc = ctx.createOscillator();
+                    osc.connect(ctx.destination);
+                    osc.start();
+                    osc.stop(ctx.currentTime + 0.001);
+                    window.audioCtxInited = true;
+                }
+            } catch(e){}
+        }
+        document.removeEventListener('click', initAudio);
+    }, { once: true });
 });
 </script>
 @endpush

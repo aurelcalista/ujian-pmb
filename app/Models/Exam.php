@@ -21,6 +21,7 @@ class Exam extends Model
         'anti_cheat_enabled',
         'max_violation',
         'status',
+        'study_program_id',
     ];
 
     protected $casts = [
@@ -36,6 +37,11 @@ class Exam extends Model
     public function questions()
     {
         return $this->hasMany(Question::class, 'exam_id');
+    }
+
+    public function studyProgram()
+    {
+        return $this->belongsTo(StudyProgram::class, 'study_program_id');
     }
 
     public function participants()

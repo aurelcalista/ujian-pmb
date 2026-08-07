@@ -102,55 +102,23 @@
             </div>
             <div class="ucic-card-body">
                 <div class="space-y-4">
-                    <div>
+                    @forelse($prodiDistributions as $index => $prodi)
+                    @php
+                        $colors = ['ucic-primary', 'ucic-secondary', 'info', 'warning', 'danger', 'secondary'];
+                        $colorClass = $colors[$index % count($colors)];
+                    @endphp
+                    <div class="mt-{{ $index == 0 ? '0' : '3' }}">
                         <div class="d-flex justify-content-between mb-1 small fw-semibold">
-                            <span>S1 Teknik Informatika</span>
-                            <span class="text-ucic-primary">38%</span>
+                            <span>{{ $prodi['name'] }}</span>
+                            <span class="text-{{ $colorClass }}">{{ $prodi['percentage'] }}% ({{ $prodi['count'] }})</span>
                         </div>
                         <div class="progress" style="height: 8px;">
-                            <div class="progress-bar bg-ucic-primary" style="width: 38%;"></div>
+                            <div class="progress-bar bg-{{ $colorClass }}" style="width: {{ $prodi['percentage'] }}%;"></div>
                         </div>
                     </div>
-
-                    <div class="mt-3">
-                        <div class="d-flex justify-content-between mb-1 small fw-semibold">
-                            <span>S1 Sistem Informasi</span>
-                            <span class="text-ucic-secondary">25%</span>
-                        </div>
-                        <div class="progress" style="height: 8px;">
-                            <div class="progress-bar bg-ucic-secondary" style="width: 25%;"></div>
-                        </div>
-                    </div>
-
-                    <div class="mt-3">
-                        <div class="d-flex justify-content-between mb-1 small fw-semibold">
-                            <span>S1 Desain Komunikasi Visual</span>
-                            <span class="text-info">18%</span>
-                        </div>
-                        <div class="progress" style="height: 8px;">
-                            <div class="progress-bar bg-info" style="width: 18%;"></div>
-                        </div>
-                    </div>
-
-                    <div class="mt-3">
-                        <div class="d-flex justify-content-between mb-1 small fw-semibold">
-                            <span>S1 Manajemen</span>
-                            <span class="text-warning">12%</span>
-                        </div>
-                        <div class="progress" style="height: 8px;">
-                            <div class="progress-bar bg-warning" style="width: 12%;"></div>
-                        </div>
-                    </div>
-
-                    <div class="mt-3">
-                        <div class="d-flex justify-content-between mb-1 small fw-semibold">
-                            <span>Lainnya (Akuntansi & D3)</span>
-                            <span class="text-secondary">7%</span>
-                        </div>
-                        <div class="progress" style="height: 8px;">
-                            <div class="progress-bar bg-secondary" style="width: 7%;"></div>
-                        </div>
-                    </div>
+                    @empty
+                    <div class="text-muted small text-center mt-4">Belum ada data pendaftar.</div>
+                    @endforelse
                 </div>
             </div>
         </div>
@@ -219,3 +187,12 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    window.cbtChartData = {
+        labels: {!! json_encode($chartLabels) !!},
+        data: {!! json_encode($chartData) !!}
+    };
+</script>
+@endpush
