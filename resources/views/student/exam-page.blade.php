@@ -5,45 +5,54 @@
 @section('content')
 <!-- TOP CBT HEADER -->
 <header class="cbt-header">
-    <div class="container-fluid px-md-4">
-        <div class="d-flex align-items-center justify-content-between">
+    <div class="container-fluid px-2 px-md-4">
+        <div class="d-flex align-items-center justify-content-between" style="gap: 0.5rem; min-width: 0;">
             
-            <!-- Left: Logo & Exam Title -->
-            <div class="d-flex align-items-center gap-3">
+            <!-- Left: Logo (always visible) -->
+            <div class="d-flex align-items-center gap-2 flex-shrink-0">
                 <img src="{{ asset('images/logo-ucic.png') }}" alt="UCIC Logo" class="ucic-logo-img-sm">
-                <div class="d-none d-md-block border-start ps-3">
-                    <h6 class="fw-bold text-ucic-primary m-0" style="font-size: 0.92rem; line-height: 1.2;">{{ $exam->title ?? 'CBT PMB UCIC 2026/2027' }}</h6>
-                    <small class="text-muted" style="font-size: 0.75rem;">Peserta: {{ $participant->name }} ({{ $participant->school_origin }})</small>
+                <div class="d-none d-md-block border-start ps-3" style="min-width: 0;">
+                    <h6 class="fw-bold text-ucic-primary m-0 text-truncate" style="font-size: 0.88rem; line-height: 1.2; max-width: 220px;">{{ $exam->title ?? 'CBT PMB UCIC 2026/2027' }}</h6>
+                    <small class="text-muted text-truncate d-block" style="font-size: 0.72rem; max-width: 220px;">{{ $participant->name }}</small>
                 </div>
             </div>
 
-            <!-- Center: Auto Save & Violation Counter Status -->
-            <div class="d-flex align-items-center gap-3">
-                <div class="auto-save-indicator bg-light px-3 py-1.5 rounded-pill border d-none d-lg-flex">
+            <!-- Center: Violation Counter (compact on mobile) -->
+            <div class="d-flex align-items-center gap-2 flex-shrink-0">
+                <div class="auto-save-indicator bg-light px-3 rounded-pill border d-none d-lg-flex" style="padding-top: 0.35rem; padding-bottom: 0.35rem;">
                     <span class="auto-save-dot"></span>
-                    <span id="autoSaveText">Tersimpan otomatis</span>
+                    <span id="autoSaveText" style="font-size: 0.78rem;">Tersimpan</span>
                 </div>
 
                 <div id="violationCounterContainer">
-                    <span class="badge bg-warning-subtle text-dark border border-warning px-3 py-1.5 rounded-pill fw-bold" style="font-size: 0.82rem;">
-                        <i class="bi bi-shield-exclamation text-warning me-1"></i> Pelanggaran: <span id="violationCountDisplay">{{ $session->violation_count }}</span>/{{ $exam->max_violation }}
+                    <!-- Desktop: full text -->
+                    <span class="badge bg-warning-subtle text-dark border border-warning rounded-pill fw-bold d-none d-sm-inline-flex align-items-center gap-1" style="font-size: 0.78rem; padding: 0.3rem 0.75rem;">
+                        <i class="bi bi-shield-exclamation text-warning"></i>
+                        Pelanggaran: <span id="violationCountDisplay">{{ $session->violation_count }}</span>/{{ $exam->max_violation }}
+                    </span>
+                    <!-- Mobile: icon + count only -->
+                    <span class="badge bg-warning-subtle text-dark border border-warning rounded-pill fw-bold d-sm-none d-inline-flex align-items-center gap-1" style="font-size: 0.75rem; padding: 0.28rem 0.55rem;">
+                        <i class="bi bi-shield-exclamation text-warning"></i>
+                        <span id="violationCountDisplayMobile">{{ $session->violation_count }}</span>/{{ $exam->max_violation }}
                     </span>
                 </div>
             </div>
 
-            <!-- Right: Timer & Mobile Navigation Toggle -->
-            <div class="d-flex align-items-center gap-3">
+            <!-- Right: Timer + Grid Nav Button (always visible) -->
+            <div class="d-flex align-items-center gap-2 flex-shrink-0">
                 <div class="cbt-timer" id="cbtTimerDisplay">
-                    <i class="bi bi-clock-history"></i>
+                    <i class="bi bi-clock-history d-none d-sm-inline"></i>
                     <span id="timerText">00:00:00</span>
                 </div>
-                <button class="btn btn-outline-primary d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#cbtSidebarOffcanvas">
-                    <i class="bi bi-grid-3x3-gap-fill fs-5"></i>
+                <!-- Grid Nav Button: visible on all screens < lg -->
+                <button class="btn btn-cbt-nav-grid d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#cbtSidebarOffcanvas" aria-label="Navigasi Soal">
+                    <i class="bi bi-grid-3x3-gap-fill"></i>
                 </button>
             </div>
         </div>
     </div>
 </header>
+
 
 <!-- MAIN EXAM LAYOUT -->
 <div class="container-fluid px-md-4 my-4 flex-grow-1">
@@ -490,60 +499,80 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // 4. Anti-Cheat & Alarm Warning Popup System
     let isWarningModalOpen = false;
+    let violationDebounceTimer = null;
+
+    // Detect if running on a mobile/touch device
+    const isMobileDevice = () => {
+        return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+            || ('ontouchstart' in window)
+            || (navigator.maxTouchPoints > 0);
+    };
 
     function handleViolation(activityType, description) {
         if (!config.antiCheatEnabled || isWarningModalOpen) return;
 
-        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-        fetch('/student/log-violation', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': csrfToken,
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify({
-                session_id: config.sessionId,
-                activity_type: activityType,
-                description: description
+        // Clear any pending debounce
+        if (violationDebounceTimer) {
+            clearTimeout(violationDebounceTimer);
+        }
+
+        // Debounce to avoid duplicate rapid-fire violations
+        violationDebounceTimer = setTimeout(() => {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            fetch('/student/log-violation', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    session_id: config.sessionId,
+                    activity_type: activityType,
+                    description: description
+                })
             })
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                const vCount = data.violation_count;
-                document.getElementById('violationCountDisplay').textContent = vCount;
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    const vCount = data.violation_count;
+                    document.getElementById('violationCountDisplay').textContent = vCount;
+                    // Sync mobile badge
+                    const mobileEl = document.getElementById('violationCountDisplayMobile');
+                    if (mobileEl) mobileEl.textContent = vCount;
 
-                // Play Audio Alarm
-                playAlarmSound();
+                    // Play Audio Alarm
+                    playAlarmSound();
 
-                // Build Warning Popup Content
-                const modalTitle = document.getElementById('warningModalTitle');
-                const modalBody = document.getElementById('warningModalBody');
+                    // Build Warning Popup Content
+                    const modalTitle = document.getElementById('warningModalTitle');
+                    const modalBody = document.getElementById('warningModalBody');
 
-                if (vCount === 1) {
-                    modalTitle.textContent = '⚠️ PERINGATAN 1/3';
-                    modalBody.textContent = 'Anda terdeteksi meninggalkan halaman ujian atau keluar dari mode fullscreen. Mohon kembali fokus mengerjakan. Aktivitas telah dicatat.';
-                } else if (vCount === 2) {
-                    modalTitle.textContent = '⚠️ PERINGATAN 2/3';
-                    modalBody.textContent = 'Aktivitas mencurigakan kembali terdeteksi. Satu pelanggaran lagi akan dilaporkan langsung ke Administrator.';
-                } else {
-                    modalTitle.textContent = '🚨 PERINGATAN TERAKHIR 3/3';
-                    modalBody.textContent = 'Batas pelanggaran telah tercapai. Aktivitas Anda telah dilaporkan kepada Admin Ujian. Tetap selesaikan sisa soal hingga waktu berakhir.';
+                    if (vCount === 1) {
+                        modalTitle.textContent = '⚠️ PERINGATAN 1/' + config.maxViolation;
+                        modalBody.textContent = 'Anda terdeteksi meninggalkan halaman ujian. Mohon kembali fokus mengerjakan. Aktivitas telah dicatat.';
+                    } else if (vCount < config.maxViolation) {
+                        modalTitle.textContent = '⚠️ PERINGATAN ' + vCount + '/' + config.maxViolation;
+                        modalBody.textContent = 'Aktivitas mencurigakan kembali terdeteksi. ' + (config.maxViolation - vCount) + ' pelanggaran lagi akan dilaporkan langsung ke Administrator.';
+                    } else {
+                        modalTitle.textContent = '🚨 PERINGATAN TERAKHIR ' + vCount + '/' + config.maxViolation;
+                        modalBody.textContent = 'Batas pelanggaran telah tercapai. Aktivitas Anda telah dilaporkan kepada Admin Ujian. Tetap selesaikan sisa soal hingga waktu berakhir.';
+                    }
+
+                    // Trigger Modal
+                    isWarningModalOpen = true;
+                    const warningModalEl = document.getElementById('warningModal');
+                    const modalInstance = new bootstrap.Modal(warningModalEl);
+                    modalInstance.show();
                 }
-
-                // Trigger Modal
-                isWarningModalOpen = true;
-                const warningModalEl = document.getElementById('warningModal');
-                const modalInstance = new bootstrap.Modal(warningModalEl);
-                modalInstance.show();
-            }
-        });
+            });
+        }, 800); // 800ms debounce to avoid duplicates
     }
 
     // Acknowledge Warning & Re-enforce Fullscreen
     document.getElementById('btnAcknowledgeWarning').addEventListener('click', () => {
         isWarningModalOpen = false;
+        if (violationDebounceTimer) clearTimeout(violationDebounceTimer);
         const warningModalEl = document.getElementById('warningModal');
         const modalInstance = bootstrap.Modal.getInstance(warningModalEl);
         if (modalInstance) modalInstance.hide();
@@ -551,20 +580,35 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // Detect Tab Switching & Visibility Change
+    // On mobile, skip if the page was briefly hidden due to keyboard/browser UI
+    let lastHiddenTime = 0;
     document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            lastHiddenTime = Date.now();
+        } else {
+            // If page came back within 1.5s, likely a keyboard popup on mobile - ignore
+            const hiddenDuration = Date.now() - lastHiddenTime;
+            if (lastHiddenTime > 0 && hiddenDuration < 1500 && isMobileDevice()) return;
+        }
+
         if (document.hidden) {
             handleViolation('pindah_tab', 'Peserta terdeteksi berpindah tab atau meminimalkan browser');
         }
     });
 
-    // Detect Window Blur / Focus Out
-    window.addEventListener('blur', () => {
-        handleViolation('window_blur', 'Peserta terdeteksi mengklik luar jendela browser');
-    });
+    // Detect Window Blur / Focus Out - SKIP on mobile (too many false positives)
+    if (!isMobileDevice()) {
+        window.addEventListener('blur', () => {
+            // Extra guard: don't fire if warning modal is already open
+            if (!isWarningModalOpen) {
+                handleViolation('window_blur', 'Peserta terdeteksi mengklik luar jendela browser');
+            }
+        });
+    }
 
-    // Detect Fullscreen Exit
+    // Detect Fullscreen Exit - only on desktop
     document.addEventListener('fullscreenchange', () => {
-        if (!document.fullscreenElement) {
+        if (!document.fullscreenElement && !isMobileDevice()) {
             handleViolation('keluar_fullscreen', 'Peserta terdeteksi keluar dari mode layar penuh (Fullscreen)');
         }
     });
@@ -575,3 +619,4 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 @endpush
+
