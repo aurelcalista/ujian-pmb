@@ -34,78 +34,105 @@
                     <th>Peserta</th>
                     <th>Asal Sekolah</th>
                     <th>Pilihan Prodi 1 & 2</th>
-                    <th class="text-center">Benar</th>
-                    <th class="text-center">Salah</th>
                     <th class="text-center">Nilai Akhir</th>
+                    <th class="text-center">Status Keamanan</th>
                     <th>Waktu Selesai</th>
                     <th class="text-center">Aksi</th>
                 </tr>
             </thead>
             <tbody>
+                @forelse($sessions as $session)
+                @php
+                    $correctCount = 0;
+                    $totalQuestions = count($session->answers);
+                    foreach($session->answers as $ans) {
+                        if ($ans->option && $ans->option->is_correct) {
+                            $correctCount++;
+                        }
+                    }
+                @endphp
                 <tr>
                     <td>
-                        <div class="fw-bold text-dark">Ahmad Fauzi</div>
-                        <small class="text-muted">PMB-2026-001</small>
+                        <div class="fw-bold text-dark">{{ $session->participant->name ?? 'Peserta' }}</div>
+                        <small class="text-muted">PMB-2026-{{ str_pad($session->participant->id ?? 1, 3, '0', STR_PAD_LEFT) }}</small>
                     </td>
-                    <td>SMAN 1 Cirebon</td>
+                    <td>{{ $session->participant->school_origin ?? '-' }}</td>
                     <td>
-                        <div class="small fw-semibold text-ucic-primary">1. S1 Teknik Informatika</div>
-                        <div class="small text-muted">2. S1 Sistem Informasi</div>
+                        <div class="small fw-semibold text-ucic-primary">1. {{ $session->participant->major_choice_1 ?? '-' }}</div>
+                        <div class="small text-muted">2. {{ $session->participant->major_choice_2 ?? '-' }}</div>
                     </td>
-                    <td class="text-center text-success fw-bold">45</td>
-                    <td class="text-center text-danger fw-semibold">5</td>
                     <td class="text-center">
-                        <span class="badge bg-success px-3 py-2 fs-6 rounded-pill">90.0</span>
+                        <span class="badge bg-success px-2.5 py-1 rounded-pill" style="font-size: 0.82rem;">{{ number_format($session->score ?? 0, 1) }}</span>
                     </td>
-                    <td class="text-muted small">07 Aug 2026, 11:15</td>
                     <td class="text-center">
-                        <button class="btn btn-sm btn-ucic-outline" onclick="alert('Detail Lembar Jawaban Peserta: Ahmad Fauzi\nJawaban Benar: 45\nJawaban Salah: 5\nNilai: 90.0');">
+                        @if($session->violation_count >= 3)
+                            <span class="badge bg-danger text-white rounded-pill px-2.5 py-1" style="font-size: 0.72rem;">🚨 {{ $session->security_status }} ({{ $session->violation_count }} Warning)</span>
+                        @elseif($session->violation_count > 0)
+                            <span class="badge bg-warning text-dark rounded-pill px-2.5 py-1" style="font-size: 0.72rem;">⚠️ {{ $session->violation_count }} Warning</span>
+                        @else
+                            <span class="badge bg-success-subtle text-success rounded-pill px-2.5 py-1" style="font-size: 0.72rem;">🛡️ Aman (0 Warning)</span>
+                        @endif
+                    </td>
+                    <td class="text-muted small">{{ $session->finished_at ? $session->finished_at->format('d M Y, H:i') : '-' }}</td>
+                    <td class="text-center">
+                        <button class="btn btn-sm btn-ucic-outline" data-bs-toggle="modal" data-bs-target="#detailModal{{ $session->id }}">
                             <i class="bi bi-file-text me-1"></i> Detail
                         </button>
                     </td>
                 </tr>
 
-                <tr>
-                    <td>
-                        <div class="fw-bold text-dark">Citra Kirana</div>
-                        <small class="text-muted">PMB-2026-003</small>
-                    </td>
-                    <td>SMA BPK Penabur</td>
-                    <td>
-                        <div class="small fw-semibold text-ucic-primary">1. S1 DKV</div>
-                        <div class="small text-muted">2. S1 Manajemen</div>
-                    </td>
-                    <td class="text-center text-success fw-bold">42</td>
-                    <td class="text-center text-danger fw-semibold">8</td>
-                    <td class="text-center">
-                        <span class="badge bg-success px-3 py-2 fs-6 rounded-pill">84.0</span>
-                    </td>
-                    <td class="text-muted small">07 Aug 2026, 10:45</td>
-                    <td class="text-center">
-                        <button class="btn btn-sm btn-ucic-outline"><i class="bi bi-file-text me-1"></i> Detail</button>
-                    </td>
-                </tr>
+                <!-- DETAIL MODAL PER SESSION -->
+                <div class="modal fade" id="detailModal{{ $session->id }}" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-lg modal-dialog-centered">
+                        <div class="modal-content rounded-4 border-0 shadow-lg">
+                            <div class="modal-header bg-ucic-primary text-white" style="border-radius: 18px 18px 0 0;">
+                                <h5 class="modal-title fw-bold fs-6">Detail Hasil & Anti-Cheat Audit: {{ $session->participant->name ?? 'Peserta' }}</h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body p-4 text-start">
+                                <div class="row g-3 mb-4 bg-light p-3 rounded-3">
+                                    <div class="col-md-6">
+                                        <small class="text-muted d-block">Nama Lengkap</small>
+                                        <strong class="text-dark">{{ $session->participant->name ?? '-' }}</strong>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <small class="text-muted d-block">Asal Sekolah</small>
+                                        <strong class="text-dark">{{ $session->participant->school_origin ?? '-' }}</strong>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <small class="text-muted d-block">Nilai Akhir</small>
+                                        <strong class="text-success fs-5">{{ number_format($session->score ?? 0, 1) }} / 100</strong>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <small class="text-muted d-block">Status Keamanan</small>
+                                        <strong class="text-danger">{{ $session->security_status }} ({{ $session->violation_count }} Pelanggaran)</strong>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <small class="text-muted d-block">Waktu Mulai & Selesai</small>
+                                        <span class="small text-muted">{{ $session->started_at ? $session->started_at->format('H:i') : '' }} - {{ $session->finished_at ? $session->finished_at->format('H:i') : '' }}</span>
+                                    </div>
+                                </div>
 
+                                <h6 class="fw-bold text-ucic-primary mb-2"><i class="bi bi-shield-exclamation me-1"></i> Log Catatan Anti-Cheat & Pelanggaran</h6>
+                                <div class="border rounded-3 p-3 mb-4 bg-white" style="max-height: 180px; overflow-y: auto;">
+                                    @forelse($session->logs as $log)
+                                    <div class="d-flex align-items-center justify-content-between border-bottom py-1.5 small">
+                                        <span class="text-danger fw-semibold">Warning #{{ $log->violation_number }}: {{ $log->activity_type }}</span>
+                                        <span class="text-muted">{{ $log->description }} ({{ $log->created_at ? $log->created_at->format('H:i:s') : '' }})</span>
+                                    </div>
+                                    @empty
+                                    <span class="text-success small"><i class="bi bi-shield-check me-1"></i>Tidak ada aktivitas pelanggaran yang tercatat selama ujian. Status Peserta: Aman.</span>
+                                    @endforelse
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @empty
                 <tr>
-                    <td>
-                        <div class="fw-bold text-dark">Dewi Sartika</div>
-                        <small class="text-muted">PMB-2026-004</small>
-                    </td>
-                    <td>SMA Al-Azhar Cirebon</td>
-                    <td>
-                        <div class="small fw-semibold text-ucic-primary">1. S1 Manajemen</div>
-                        <div class="small text-muted">2. S1 Akuntansi</div>
-                    </td>
-                    <td class="text-center text-success fw-bold">39</td>
-                    <td class="text-center text-danger fw-semibold">11</td>
-                    <td class="text-center">
-                        <span class="badge bg-primary px-3 py-2 fs-6 rounded-pill">78.0</span>
-                    </td>
-                    <td class="text-muted small">07 Aug 2026, 10:30</td>
-                    <td class="text-center">
-                        <button class="btn btn-sm btn-ucic-outline"><i class="bi bi-file-text me-1"></i> Detail</button>
-                    </td>
+                    <td colspan="7" class="text-center py-4 text-muted">Belum ada hasil ujian peserta.</td>
                 </tr>
+                @endforelse
             </tbody>
         </table>
     </div>

@@ -244,4 +244,58 @@ document.addEventListener('DOMContentLoaded', function () {
 
 });
 
+function toggleAdminSidebar() {
+    const sidebar = document.getElementById('adminSidebar');
+    const main = document.querySelector('.admin-main');
+    let backdrop = document.getElementById('sidebarBackdrop');
+
+    if (!backdrop) {
+        backdrop = document.createElement('div');
+        backdrop.id = 'sidebarBackdrop';
+        backdrop.className = 'sidebar-backdrop';
+        backdrop.onclick = toggleAdminSidebar;
+        document.body.appendChild(backdrop);
+    }
+
+    if (!sidebar) return;
+
+    if (window.innerWidth < 992) {
+        sidebar.classList.toggle('show-mobile');
+        sidebar.classList.toggle('show');
+        backdrop.classList.toggle('show');
+    } else {
+        sidebar.classList.toggle('collapsed');
+        if (main) main.classList.toggle('expanded');
+    }
+}
+
+// ----------------------------------------------------------------------
+// GLOBAL DARK / LIGHT MODE TOGGLE
+// ----------------------------------------------------------------------
+function toggleTheme() {
+    const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+    setTheme(newTheme);
+}
+
+function setTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('ucic_theme', theme);
+
+    const themeIcons = document.querySelectorAll('.theme-toggle-icon');
+    themeIcons.forEach(icon => {
+        if (theme === 'dark') {
+            icon.className = 'bi bi-sun-fill fs-5 text-warning theme-toggle-icon';
+        } else {
+            icon.className = 'bi bi-moon-stars-fill fs-5 text-muted theme-toggle-icon';
+        }
+    });
+}
+
+// Auto init theme state
+(function initTheme() {
+    const savedTheme = localStorage.getItem('ucic_theme') || 'light';
+    setTheme(savedTheme);
+})();
+
 

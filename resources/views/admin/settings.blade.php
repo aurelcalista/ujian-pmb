@@ -7,15 +7,23 @@
 <div class="row justify-content-center">
     <div class="col-lg-10">
         
+        @if(session('success'))
+            <div class="alert alert-success alert-dismissible fade show rounded-3 mb-4" role="alert">
+                <i class="bi bi-check-circle-fill me-2"></i>{{ session('success') }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        @endif
+
         <div class="ucic-card">
             <div class="ucic-card-header bg-light">
                 <h6 class="fw-bold m-0 text-dark">Pengaturan Konfigurasi Ujian PMB</h6>
-                <small class="text-muted" style="font-size: 0.78rem;">Atur durasi, jumlah soal, status ujian, dan identitas universitas</small>
+                <small class="text-muted" style="font-size: 0.78rem;">Atur durasi, batas pelanggaran anti-cheat, dan opsi pengerjaan</small>
             </div>
 
             <div class="ucic-card-body p-4 p-md-5">
-                <form action="#" onsubmit="alert('Pengaturan sistem berhasil disimpan!'); return false;">
-                    
+                <form action="{{ url('/admin/settings') }}" method="POST">
+                    @csrf
+
                     <!-- University Logo Preview Section -->
                     <div class="mb-4 pb-4 border-bottom">
                         <label class="form-label-ucic d-block">Logo Resmi Universitas</label>
@@ -24,27 +32,22 @@
                                 <img src="{{ asset('images/logo-ucic.png') }}" alt="UCIC Logo Preview" style="height: 60px; width: auto;">
                             </div>
                             <div>
-                                <button type="button" class="btn btn-sm btn-outline-primary mb-1" onclick="alert('Pilih file logo baru (PNG / SVG max 2MB).');">
-                                    <i class="bi bi-upload me-1"></i> Unggah Logo Baru
+                                <button type="button" class="btn btn-sm btn-outline-primary mb-1" onclick="alert('Logo saat ini menggunakan aset resmi UCIC CBT.');">
+                                    <i class="bi bi-shield-check me-1"></i> Logo UCIC Resmi Aktif
                                 </button>
-                                <small class="text-muted d-block" style="font-size: 0.75rem;">Format disarankan: PNG Transparan atau SVG. Ukuran ideal: 400x120px.</small>
+                                <small class="text-muted d-block" style="font-size: 0.75rem;">Aset logo tersimpan pada folder public/images/logo-ucic.png.</small>
                             </div>
                         </div>
                     </div>
 
                     <div class="row g-4 mb-4">
-                        <!-- Tahun Akademik -->
-                        <div class="col-md-6">
-                            <label for="academicYear" class="form-label-ucic">Tahun Akademik PMB</label>
-                            <input type="text" class="form-control form-control-ucic" id="academicYear" value="2026/2027">
-                        </div>
-
                         <!-- Status Ujian Toggle -->
                         <div class="col-md-6">
                             <label for="examStatus" class="form-label-ucic">Status Akses Ujian Peserta</label>
-                            <select class="form-select form-select-ucic" id="examStatus">
-                                <option value="active" selected>Aktif (Dapat Diakses Peserta)</option>
-                                <option value="inactive">Non-Aktif (Ujian Ditutup)</option>
+                            <select class="form-select form-select-ucic" id="examStatus" name="status">
+                                <option value="active" {{ ($exam->status ?? 'active') === 'active' ? 'selected' : '' }}>Aktif (Dapat Diakses Peserta)</option>
+                                <option value="draft" {{ ($exam->status ?? '') === 'draft' ? 'selected' : '' }}>Draft (Persiapan)</option>
+                                <option value="finished" {{ ($exam->status ?? '') === 'finished' ? 'selected' : '' }}>Non-Aktif (Selesai/Ditutup)</option>
                             </select>
                         </div>
 
@@ -52,43 +55,57 @@
                         <div class="col-md-6">
                             <label for="examDuration" class="form-label-ucic">Durasi Pengerjaan Ujian (Menit)</label>
                             <div class="input-group">
-                                <input type="number" class="form-control form-control-ucic border-end-0" id="examDuration" value="90">
+                                <input type="number" class="form-control form-control-ucic border-end-0" id="examDuration" name="duration" value="{{ $exam->duration ?? 90 }}" min="10" max="300" required>
                                 <span class="input-group-text bg-light text-muted border-start-0" style="border-radius: 0 12px 12px 0;">Menit</span>
                             </div>
                         </div>
 
-                        <!-- Jumlah Soal -->
+                        <!-- Maksimal Pelanggaran -->
                         <div class="col-md-6">
-                            <label for="totalQuestions" class="form-label-ucic">Jumlah Soal per Peserta</label>
+                            <label for="maxViolation" class="form-label-ucic">Maksimal Toleransi Pelanggaran (Batas Warning)</label>
                             <div class="input-group">
-                                <input type="number" class="form-control form-control-ucic border-end-0" id="totalQuestions" value="50">
-                                <span class="input-group-text bg-light text-muted border-start-0" style="border-radius: 0 12px 12px 0;">Soal</span>
+                                <input type="number" class="form-control form-control-ucic border-end-0" id="maxViolation" name="max_violation" value="{{ $exam->max_violation ?? 3 }}" min="1" max="10" required>
+                                <span class="input-group-text bg-light text-muted border-start-0" style="border-radius: 0 12px 12px 0;">Kali</span>
                             </div>
                         </div>
                     </div>
 
                     <!-- Additional System Options -->
                     <div class="mb-4 pb-3 border-bottom">
-                        <label class="form-label-ucic mb-2">Opsi Keamanan & Pengerjaan</label>
+                        <label class="form-label-ucic mb-2">Opsi Keamanan & Pengerjaan Ujian</label>
                         
                         <div class="form-check mb-2">
-                            <input class="form-check-input" type="checkbox" id="shuffleQuestions" checked>
+                            <input class="form-check-input" type="checkbox" id="shuffleQuestions" name="shuffle_questions" value="1" {{ ($exam->shuffle_questions ?? true) ? 'checked' : '' }}>
                             <label class="form-check-label text-dark" for="shuffleQuestions">
                                 Acak urutan soal untuk setiap peserta (Randomize Questions)
                             </label>
                         </div>
 
                         <div class="form-check mb-2">
-                            <input class="form-check-input" type="checkbox" id="shuffleOptions" checked>
+                            <input class="form-check-input" type="checkbox" id="shuffleOptions" name="shuffle_options" value="1" {{ ($exam->shuffle_options ?? true) ? 'checked' : '' }}>
                             <label class="form-check-label text-dark" for="shuffleOptions">
                                 Acak urutan opsi pilihan jawaban (Randomize Options A-E)
                             </label>
                         </div>
 
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" id="autoSubmit" checked>
-                            <label class="form-check-label text-dark" for="autoSubmit">
-                                Kirim jawaban otomatis ketika timer waktu ujian habis
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="fullscreenEnabled" name="fullscreen_enabled" value="1" {{ ($exam->fullscreen_enabled ?? true) ? 'checked' : '' }}>
+                            <label class="form-check-label text-dark" for="fullscreenEnabled">
+                                Wajibkan Mode Layar Penuh Browser (Fullscreen Mode)
+                            </label>
+                        </div>
+
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="autosaveEnabled" name="autosave_enabled" value="1" {{ ($exam->autosave_enabled ?? true) ? 'checked' : '' }}>
+                            <label class="form-check-label text-dark" for="autosaveEnabled">
+                                Aktifkan Penyimpanan Otomatis Jawaban Real-time (Auto Save AJAX)
+                            </label>
+                        </div>
+
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" id="antiCheatEnabled" name="anti_cheat_enabled" value="1" {{ ($exam->anti_cheat_enabled ?? true) ? 'checked' : '' }}>
+                            <label class="form-check-label text-dark" for="antiCheatEnabled">
+                                Aktifkan Sistem Anti-Cheat (Exambro Style Tab & Focus Detector)
                             </label>
                         </div>
                     </div>
@@ -99,7 +116,6 @@
                             <i class="bi bi-save2-fill me-2"></i> Simpan Pengaturan
                         </button>
                     </div>
-
                 </form>
             </div>
         </div>

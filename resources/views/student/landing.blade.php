@@ -11,26 +11,49 @@
     <div class="ambient-blob ambient-blob-3"></div>
     <div class="geometric-grid-overlay"></div>
 
-    <!-- HEADER / STICKY NAVBAR -->
-    <nav class="navbar navbar-expand-lg ucic-navbar">
-        <div class="container position-relative" style="z-index: 10;">
-            <a class="navbar-brand d-flex align-items-center gap-3" href="{{ url('/') }}">
-                <img src="{{ asset('images/logo-ucic.png') }}" alt="Logo Universitas Catur Insan Cendekia" class="ucic-logo-img">
-                <div class="d-none d-md-block nav-brand-divider"></div>
-                <div class="d-flex flex-column text-center text-md-start">
-                    <span class="nav-brand-title">Computer Based Test PMB</span>
-                    <span class="nav-brand-subtitle">Universitas Catur Insan Cendekia</span>
-                </div>
-            </a>
+    <!-- HEADER / STICKY FLOATING PILL NAVBAR WITH MOBILE HAMBURGER -->
+    <header class="ucic-floating-navbar-wrapper">
+        <div class="container d-flex flex-column align-items-center px-2 px-sm-3">
             
-            <div class="d-flex align-items-center gap-2">
-                <a href="{{ url('/admin/login') }}" class="btn btn-nav-admin">
-                    <i class="bi bi-person-lock"></i>
-                    <span>Admin Login</span>
+            <div class="ucic-floating-navbar d-flex align-items-center justify-content-between gap-2 gap-md-3">
+                
+                <!-- Left: Logo & Brand Titles -->
+                <a href="{{ url('/') }}" class="d-flex align-items-center gap-2 gap-md-3 text-decoration-none">
+                    <img src="{{ asset('images/logo-ucic.png') }}" alt="UCIC Logo" class="navbar-logo-img">
+                    
+                    <div class="d-flex flex-column text-start border-start ps-2.5 ps-md-3">
+                        <span class="nav-brand-title" style="font-size: 0.92rem; font-weight: 700; color: var(--ucic-primary); line-height: 1.2;">Computer Based Test PMB</span>
+                        <span class="nav-brand-subtitle d-none d-sm-block" style="font-size: 0.72rem; color: var(--ucic-text-muted); line-height: 1.2;">Universitas Catur Insan Cendekia</span>
+                    </div>
                 </a>
+
+                <!-- Desktop Navigation Pills -->
+                <div class="d-none d-md-flex align-items-center gap-1">
+                    <a href="{{ url('/') }}" class="btn btn-pill-nav active">Beranda</a>
+                    <a href="{{ url('/student/form') }}" class="btn btn-pill-nav">Form Ujian</a>
+                </div>
+
+                <!-- Mobile Hamburger Toggle Button -->
+                <button class="btn btn-pill-hamburger d-md-none" type="button" data-bs-toggle="collapse" data-bs-target="#mobilePillMenu" aria-expanded="false" aria-label="Toggle Navigation">
+                    <i class="bi bi-list fs-4"></i>
+                </button>
+
             </div>
+
+            <!-- Mobile Collapsible Menu Card -->
+            <div class="collapse w-100 d-md-none" id="mobilePillMenu" style="max-width: 960px;">
+                <div class="ucic-mobile-pill-menu d-flex flex-column gap-2 text-center">
+                    <a href="{{ url('/') }}" class="btn btn-pill-nav active py-2.5">
+                        <i class="bi bi-house-door-fill me-1"></i> Beranda
+                    </a>
+                    <a href="{{ url('/student/form') }}" class="btn btn-pill-nav py-2.5">
+                        <i class="bi bi-journal-text me-1"></i> Form Ujian
+                    </a>
+                </div>
+            </div>
+
         </div>
-    </nav>
+    </header>
 
     <!-- HERO SECTION -->
     <main class="flex-grow-1 d-flex flex-column justify-content-center py-4 py-lg-5 position-relative" style="z-index: 2;">
@@ -269,20 +292,18 @@
     </section>
 
     <!-- FOOTER -->
-    <footer class="bg-white border-top py-4 mt-auto position-relative" style="z-index: 2;">
+    <footer class="bg-white border-top py-3 py-md-4 mt-auto position-relative" style="z-index: 10;">
         <div class="container">
-            <div class="row align-items-center justify-content-between text-center text-md-start g-3">
-                <div class="col-md-7">
-                    <div class="d-flex align-items-center justify-content-center justify-content-md-start gap-3 flex-wrap">
-                        <img src="{{ asset('images/logo-ucic.png') }}" alt="UCIC Logo" style="height: 34px;">
-                        <div>
-                            <strong class="d-block text-ucic-primary" style="font-size: 0.95rem;">Universitas Catur Insan Cendekia (UCIC)</strong>
-                            <small class="text-muted" style="font-size: 0.78rem;">Sistem Computer Based Test (CBT) Penerimaan Mahasiswa Baru</small>
-                        </div>
+            <div class="d-flex flex-column flex-md-row align-items-center justify-content-between text-center text-md-start gap-3">
+                <div class="d-flex align-items-center justify-content-center justify-content-md-start gap-3 flex-wrap flex-sm-nowrap">
+                    <img src="{{ asset('images/logo-ucic.png') }}" alt="UCIC Logo" style="height: 36px; width: auto; object-fit: contain;">
+                    <div>
+                        <strong class="d-block text-ucic-primary" style="font-size: 0.92rem;">Universitas Catur Insan Cendekia (UCIC)</strong>
+                        <small class="text-muted d-block" style="font-size: 0.76rem;">Sistem Computer Based Test (CBT) Penerimaan Mahasiswa Baru</small>
                     </div>
                 </div>
-                <div class="col-md-5 text-center text-md-end">
-                    <span class="text-muted small">&copy; {{ date('Y') }} PMB UCIC. All Rights Reserved.</span>
+                <div class="text-center text-md-end">
+                    <span class="text-muted small" style="font-size: 0.78rem;">&copy; {{ date('Y') }} PMB UCIC. All Rights Reserved.</span>
                 </div>
             </div>
         </div>

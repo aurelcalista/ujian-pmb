@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'CBT Exam Interface - Universitas Catur Insan Cendekia')
+@section('title', 'CBT Ujian PMB - ' . ($exam->title ?? 'Universitas Catur Insan Cendekia'))
 
 @section('content')
 <!-- TOP CBT HEADER -->
@@ -12,24 +12,30 @@
             <div class="d-flex align-items-center gap-3">
                 <img src="{{ asset('images/logo-ucic.png') }}" alt="UCIC Logo" class="ucic-logo-img-sm">
                 <div class="d-none d-md-block border-start ps-3">
-                    <h6 class="fw-bold text-ucic-primary m-0" style="font-size: 0.95rem; line-height: 1.2;">CBT PMB UCIC 2026/2027</h6>
-                    <small class="text-muted" style="font-size: 0.78rem;">Tes Potensi Akademik & Bahasa Inggris</small>
+                    <h6 class="fw-bold text-ucic-primary m-0" style="font-size: 0.92rem; line-height: 1.2;">{{ $exam->title ?? 'CBT PMB UCIC 2026/2027' }}</h6>
+                    <small class="text-muted" style="font-size: 0.75rem;">Peserta: {{ $participant->name }} ({{ $participant->school_origin }})</small>
                 </div>
             </div>
 
-            <!-- Center: Auto Save Status -->
-            <div class="d-none d-lg-flex align-items-center">
-                <div class="auto-save-indicator bg-light px-3 py-1.5 rounded-pill border">
+            <!-- Center: Auto Save & Violation Counter Status -->
+            <div class="d-flex align-items-center gap-3">
+                <div class="auto-save-indicator bg-light px-3 py-1.5 rounded-pill border d-none d-lg-flex">
                     <span class="auto-save-dot"></span>
-                    <span id="autoSaveText">Tersimpan otomatis 11:20:05</span>
+                    <span id="autoSaveText">Tersimpan otomatis</span>
+                </div>
+
+                <div id="violationCounterContainer">
+                    <span class="badge bg-warning-subtle text-dark border border-warning px-3 py-1.5 rounded-pill fw-bold" style="font-size: 0.82rem;">
+                        <i class="bi bi-shield-exclamation text-warning me-1"></i> Pelanggaran: <span id="violationCountDisplay">{{ $session->violation_count }}</span>/{{ $exam->max_violation }}
+                    </span>
                 </div>
             </div>
 
-            <!-- Right: Timer & Mobile Sidebar Toggle -->
+            <!-- Right: Timer & Mobile Navigation Toggle -->
             <div class="d-flex align-items-center gap-3">
                 <div class="cbt-timer" id="cbtTimerDisplay">
                     <i class="bi bi-clock-history"></i>
-                    <span>01:29:55</span>
+                    <span id="timerText">00:00:00</span>
                 </div>
                 <button class="btn btn-outline-primary d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#cbtSidebarOffcanvas">
                     <i class="bi bi-grid-3x3-gap-fill fs-5"></i>
@@ -45,94 +51,44 @@
         
         <!-- LEFT / MAIN QUESTION PANEL -->
         <div class="col-lg-8 col-xl-9">
-            <div class="ucic-card h-100 d-flex flex-column">
+            <div class="ucic-card h-100 d-flex flex-column" id="mainQuestionCard">
                 
                 <!-- Question Card Header -->
                 <div class="ucic-card-header d-flex align-items-center justify-content-between bg-light">
                     <div class="d-flex align-items-center gap-2">
                         <span class="badge bg-ucic-primary px-3 py-2 fs-6 rounded-pill" id="currentQuestionTitle">Soal No. 1</span>
-                        <span class="text-muted small">dari 50 Soal</span>
+                        <span class="text-muted small">dari {{ count($orderedQuestions) }} Soal</span>
                     </div>
 
                     <button type="button" class="btn btn-sm btn-outline-warning fw-semibold px-3 rounded-pill" id="btnFlagQuestion">
-                        <i class="bi bi-flag-fill me-1"></i> Ragu-ragu
+                        <i class="bi bi-flag-fill me-1"></i> Tandai Ragu-ragu
                     </button>
                 </div>
 
-                <!-- Question Text Body -->
+                <!-- Question Text & Options Body -->
                 <div class="ucic-card-body flex-grow-1 p-4 p-md-5">
-                    <div class="question-text mb-4" style="font-size: 1.1rem; line-height: 1.7; color: #1E293B;">
-                        <p class="fw-medium mb-3">
-                            Manakah di antara pernyataan berikut yang paling tepat mengenai prinsip dasar pengembangan sistem informasi berbasis jaringan komputer di lingkungan perguruan tinggi?
-                        </p>
-                        <p class="text-secondary small mb-0">
-                            Pilihlah salah satu jawaban yang menurut Anda paling benar di bawah ini:
-                        </p>
+                    <div class="question-text mb-4" id="questionTextContainer" style="font-size: 1.05rem; line-height: 1.7; color: var(--ucic-text-dark);">
+                        <!-- Question content dynamically rendered via JS -->
                     </div>
 
-                    <!-- ANSWER OPTIONS (A, B, C, D, E) -->
-                    <div class="options-container space-y-3">
-                        
-                        <!-- Option A -->
-                        <label class="option-card mb-3 w-100">
-                            <input type="radio" name="question_1" value="A" class="d-none">
-                            <div class="option-key">A</div>
-                            <div class="option-text">
-                                Mengutamakan skabilitas, keamanan data, dan integrasi antar layanan akademik secara terpusat.
-                            </div>
-                        </label>
-
-                        <!-- Option B -->
-                        <label class="option-card mb-3 w-100">
-                            <input type="radio" name="question_1" value="B" class="d-none">
-                            <div class="option-key">B</div>
-                            <div class="option-text">
-                                Membatasi akses seluruh mahasiswa agar data tidak dapat diakses dari luar kampus.
-                            </div>
-                        </label>
-
-                        <!-- Option C -->
-                        <label class="option-card mb-3 w-100">
-                            <input type="radio" name="question_1" value="C" class="d-none">
-                            <div class="option-key">C</div>
-                            <div class="option-text">
-                                Menggunakan perangkat keras dengan spesifikasi paling sederhana tanpa enkripsi data.
-                            </div>
-                        </label>
-
-                        <!-- Option D -->
-                        <label class="option-card mb-3 w-100">
-                            <input type="radio" name="question_1" value="D" class="d-none">
-                            <div class="option-key">D</div>
-                            <div class="option-text">
-                                Menghilangkan peran server pusat dan menggantikannya dengan sistem manual.
-                            </div>
-                        </label>
-
-                        <!-- Option E -->
-                        <label class="option-card mb-3 w-100">
-                            <input type="radio" name="question_1" value="E" class="d-none">
-                            <div class="option-key">E</div>
-                            <div class="option-text">
-                                Menyimpan seluruh cadangan data hanya pada media fisik flashdisk lokal.
-                            </div>
-                        </label>
-
+                    <!-- ANSWER OPTIONS CONTAINER -->
+                    <div class="options-container space-y-3" id="optionsContainer">
+                        <!-- Options dynamically rendered via JS -->
                     </div>
                 </div>
 
                 <!-- Bottom Question Navigation Toolbar -->
                 <div class="p-3 p-md-4 border-top bg-light d-flex align-items-center justify-content-between rounded-bottom-4">
-                    <button class="btn btn-outline-secondary px-4 py-2 fw-semibold rounded-3" disabled>
+                    <button class="btn btn-outline-secondary px-4 py-2 fw-semibold rounded-3" id="btnPrevQuestion">
                         <i class="bi bi-chevron-left me-1"></i> Sebelumnya
                     </button>
 
                     <div class="d-flex align-items-center gap-2">
-                        <button class="btn btn-ucic-secondary px-4 py-2 fw-semibold rounded-3">
+                        <button class="btn btn-ucic-secondary px-4 py-2 fw-semibold rounded-3" id="btnNextQuestion">
                             <span>Selanjutnya</span> <i class="bi bi-chevron-right ms-1"></i>
                         </button>
 
-                        <button class="btn btn-success px-4 py-2 fw-semibold rounded-3" data-bs-toggle="modal" data-bs-target="#finishModal">
+                        <button class="btn btn-success px-4 py-2 fw-semibold rounded-3 d-none" id="btnFinishTrigger" data-bs-toggle="modal" data-bs-target="#finishModal">
                             <i class="bi bi-check-circle-fill me-1"></i> Selesai Ujian
                         </button>
                     </div>
@@ -143,14 +99,14 @@
         <!-- RIGHT QUESTION NAVIGATION SIDEBAR (Desktop) -->
         <div class="col-lg-4 col-xl-3 d-none d-lg-block">
             <div class="ucic-card h-100">
-                <div class="ucic-card-header bg-ucic-primary text-white" style="border-radius: 18px 18px 0 0;">
+                <div class="ucic-card-header bg-ucic-primary text-white" style="border-radius: 18px 18px 0 0; background: linear-gradient(135deg, #005BAC 0%, #004685 100%);">
                     <div class="d-flex align-items-center gap-3">
-                        <div class="rounded-circle bg-white text-ucic-primary fw-bold d-flex align-items-center justify-content-center" style="width: 42px; height: 42px;">
+                        <div class="rounded-circle bg-white text-ucic-primary fw-bold d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
                             <i class="bi bi-person-fill fs-5"></i>
                         </div>
-                        <div>
-                            <h6 class="fw-bold m-0" style="font-size: 0.95rem;">Ahmad Fauzi</h6>
-                            <small class="text-white-50" style="font-size: 0.75rem;">SMAN 1 Cirebon</small>
+                        <div class="text-truncate">
+                            <h6 class="fw-bold m-0 text-white text-truncate" style="font-size: 0.92rem;">{{ $participant->name }}</h6>
+                            <small class="text-white-50 text-truncate d-block" style="font-size: 0.72rem;">{{ $participant->school_origin }}</small>
                         </div>
                     </div>
                 </div>
@@ -158,31 +114,12 @@
                 <div class="ucic-card-body p-3">
                     <div class="d-flex align-items-center justify-content-between mb-3">
                         <h6 class="fw-bold m-0 text-dark">Navigasi Soal</h6>
-                        <small class="badge bg-light text-muted border">50 Soal</small>
+                        <small class="badge bg-light text-muted border">{{ count($orderedQuestions) }} Soal</small>
                     </div>
 
-                    <!-- Question Grid 1 - 20 preview -->
-                    <div class="cbt-num-grid mb-4">
-                        <div class="cbt-num-btn active answered" data-index="1">1</div>
-                        <div class="cbt-num-btn answered" data-index="2">2</div>
-                        <div class="cbt-num-btn answered" data-index="3">3</div>
-                        <div class="cbt-num-btn flagged" data-index="4">4</div>
-                        <div class="cbt-num-btn" data-index="5">5</div>
-                        <div class="cbt-num-btn" data-index="6">6</div>
-                        <div class="cbt-num-btn answered" data-index="7">7</div>
-                        <div class="cbt-num-btn" data-index="8">8</div>
-                        <div class="cbt-num-btn" data-index="9">9</div>
-                        <div class="cbt-num-btn" data-index="10">10</div>
-                        <div class="cbt-num-btn" data-index="11">11</div>
-                        <div class="cbt-num-btn" data-index="12">12</div>
-                        <div class="cbt-num-btn" data-index="13">13</div>
-                        <div class="cbt-num-btn" data-index="14">14</div>
-                        <div class="cbt-num-btn" data-index="15">15</div>
-                        <div class="cbt-num-btn" data-index="16">16</div>
-                        <div class="cbt-num-btn" data-index="17">17</div>
-                        <div class="cbt-num-btn" data-index="18">18</div>
-                        <div class="cbt-num-btn" data-index="19">19</div>
-                        <div class="cbt-num-btn" data-index="20">20</div>
+                    <!-- Question Grid -->
+                    <div class="cbt-num-grid mb-4" id="desktopNumGrid">
+                        <!-- Buttons rendered via JS -->
                     </div>
 
                     <!-- Legend -->
@@ -191,34 +128,76 @@
                             <span class="d-flex align-items-center gap-2">
                                 <span class="legend-dot answered"></span> Sudah Dijawab
                             </span>
-                            <strong class="text-ucic-primary">4 Soal</strong>
+                            <strong class="text-ucic-primary" id="legendAnsweredCount">0 Soal</strong>
                         </div>
 
                         <div class="d-flex align-items-center justify-content-between mb-2">
                             <span class="d-flex align-items-center gap-2">
                                 <span class="legend-dot flagged"></span> Ragu-ragu
                             </span>
-                            <strong class="text-warning">1 Soal</strong>
+                            <strong class="text-warning" id="legendFlaggedCount">0 Soal</strong>
                         </div>
 
                         <div class="d-flex align-items-center justify-content-between mb-2">
                             <span class="d-flex align-items-center gap-2">
                                 <span class="legend-dot unanswered"></span> Belum Dijawab
                             </span>
-                            <strong class="text-muted">45 Soal</strong>
+                            <strong class="text-muted" id="legendUnansweredCount">0 Soal</strong>
                         </div>
 
                         <div class="d-flex align-items-center justify-content-between">
                             <span class="d-flex align-items-center gap-2">
-                                <span class="legend-dot active"></span> Posisi Soal Aktif
+                                <span class="legend-dot active"></span> Soal Aktif
                             </span>
-                            <strong class="text-dark">No. 1</strong>
+                            <strong class="text-dark" id="legendActiveQuestionText">No. 1</strong>
                         </div>
+                    </div>
+
+                    <div class="mt-4 pt-2">
+                        <button class="btn btn-success w-100 py-2.5 fw-semibold rounded-3" data-bs-toggle="modal" data-bs-target="#finishModal">
+                            <i class="bi bi-check-circle-fill me-1"></i> Selesai Ujian
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
 
+    </div>
+</div>
+
+<!-- MOBILE OFFCANVAS QUESTION NAV SIDEBAR -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="cbtSidebarOffcanvas" aria-labelledby="cbtSidebarOffcanvasLabel">
+    <div class="offcanvas-header bg-ucic-primary text-white">
+        <h5 class="offcanvas-title fw-bold fs-6" id="cbtSidebarOffcanvasLabel">Navigasi Soal Ujian</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body p-3">
+        <div class="cbt-num-grid mb-4" id="mobileNumGrid">
+            <!-- Rendered via JS -->
+        </div>
+        <button class="btn btn-success w-100 py-2.5 fw-semibold rounded-3" data-bs-toggle="modal" data-bs-target="#finishModal" data-bs-dismiss="offcanvas">
+            <i class="bi bi-check-circle-fill me-1"></i> Selesai Ujian
+        </button>
+    </div>
+</div>
+
+<!-- ANTI-CHEAT ALARM WARNING MODAL -->
+<div class="modal fade" id="warningModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0 shadow-lg" style="border-top: 5px solid #EF4444 !important;">
+            <div class="modal-body p-4 p-md-5 text-center">
+                <div class="mx-auto mb-3 d-flex align-items-center justify-content-center rounded-circle bg-danger-subtle text-danger" style="width: 72px; height: 72px;">
+                    <i class="bi bi-exclamation-triangle-fill" style="font-size: 2.5rem;"></i>
+                </div>
+                <h4 class="fw-bold mb-2 text-danger" id="warningModalTitle">⚠️ PERINGATAN 1/3</h4>
+                <p class="text-secondary mb-4" id="warningModalBody" style="line-height: 1.6; font-size: 0.95rem;">
+                    Anda terdeteksi meninggalkan halaman ujian. Mohon kembali fokus mengerjakan. Aktivitas telah dicatat.
+                </p>
+                <button type="button" class="btn btn-danger w-100 py-3 fw-bold fs-6 rounded-3" id="btnAcknowledgeWarning">
+                    <i class="bi bi-shield-check me-1"></i> Saya Mengerti & Kembali Ujian
+                </button>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -232,24 +211,367 @@
                 </div>
                 <h4 class="fw-bold mb-2">Konfirmasi Selesai Ujian</h4>
                 <p class="text-secondary mb-4 small" style="line-height: 1.6;">
-                    Apakah Anda yakin ingin menyelesaikan ujian ini? Pastikan seluruh soal telah dijawab dengan teliti sebelum mengirimkan jawaban.
+                    Apakah Anda yakin ingin menyelesaikan ujian sekarang? Pastikan seluruh soal telah dijawab sebelum mengirimkan.
                 </p>
 
                 <div class="row g-2 mb-4 text-start bg-light p-3 rounded-3" style="font-size: 0.88rem;">
-                    <div class="col-6">Sudah Dijawab: <strong class="text-success">4 Soal</strong></div>
-                    <div class="col-6">Ragu-ragu: <strong class="text-warning">1 Soal</strong></div>
-                    <div class="col-6">Belum Dijawab: <strong class="text-danger">45 Soal</strong></div>
-                    <div class="col-6">Sisa Waktu: <strong class="text-primary">01:29:55</strong></div>
+                    <div class="col-6">Sudah Dijawab: <strong class="text-success" id="modalSummaryAnswered">0 Soal</strong></div>
+                    <div class="col-6">Ragu-ragu: <strong class="text-warning" id="modalSummaryFlagged">0 Soal</strong></div>
+                    <div class="col-6">Belum Dijawab: <strong class="text-danger" id="modalSummaryUnanswered">0 Soal</strong></div>
+                    <div class="col-6">Sisa Waktu: <strong class="text-primary" id="modalSummaryTimer">00:00:00</strong></div>
                 </div>
 
-                <div class="d-flex gap-3">
-                    <button type="button" class="btn btn-light w-50 py-2.5 fw-semibold" data-bs-dismiss="modal">Kembali ke Soal</button>
-                    <a href="{{ url('/student/thank-you') }}" class="btn btn-ucic-primary w-50 py-2.5 fw-semibold">
-                        Ya, Kirim Jawaban
-                    </a>
-                </div>
+                <form action="{{ url('/student/submit') }}" method="POST" id="finishExamForm">
+                    @csrf
+                    <input type="hidden" name="session_id" value="{{ $session->id }}">
+                    <div class="d-flex gap-3">
+                        <button type="button" class="btn btn-light w-50 py-2.5 fw-semibold" data-bs-dismiss="modal">Kembali Pengerjaan</button>
+                        <button type="submit" class="btn btn-ucic-primary w-50 py-2.5 fw-semibold">
+                            Ya, Tetap Selesaikan
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+// EXAM DATA PASSED FROM LARAVEL BACKEND
+window.CBT_EXAM_CONFIG = {
+    sessionId: {{ $session->id }},
+    maxViolation: {{ $exam->max_violation ?? 3 }},
+    violationCount: {{ $session->violation_count ?? 0 }},
+    remainingSeconds: {{ $remainingSeconds }},
+    antiCheatEnabled: {{ $exam->anti_cheat_enabled ? 'true' : 'false' }},
+    fullscreenEnabled: {{ $exam->fullscreen_enabled ? 'true' : 'false' }},
+    autosaveEnabled: {{ $exam->autosave_enabled ? 'true' : 'false' }},
+    questions: [
+        @foreach($orderedQuestions as $index => $q)
+        {
+            id: {{ $q->id }},
+            number: {{ $index + 1 }},
+            text: `{!! addslashes($q->question_text) !!}`,
+            weight: {{ $q->weight }},
+            savedOptionId: {{ isset($savedAnswers[$q->id]) && $savedAnswers[$q->id]->option_id ? $savedAnswers[$q->id]->option_id : 'null' }},
+            isDoubt: {{ isset($savedAnswers[$q->id]) && $savedAnswers[$q->id]->is_doubt ? 'true' : 'false' }},
+            options: [
+                @foreach($q->options as $optIdx => $opt)
+                {
+                    id: {{ $opt->id }},
+                    key: "{{ chr(65 + $optIdx) }}",
+                    text: `{!! addslashes($opt->option_text) !!}`
+                }@if(!$loop->last),@endif
+                @endforeach
+            ]
+        }@if(!$loop->last),@endif
+        @endforeach
+    ]
+};
+
+// INITIALIZE INTERACTIVE CBT EXAM ENGINE
+document.addEventListener('DOMContentLoaded', function () {
+    const config = window.CBT_EXAM_CONFIG;
+    let currentIndex = 0;
+    let timerSeconds = config.remainingSeconds;
+    let warningAudioCtx = null;
+
+    // Web Audio Synthesizer Alarm Generator
+    function playAlarmSound() {
+        try {
+            if (!warningAudioCtx) {
+                warningAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            const osc = warningAudioCtx.createOscillator();
+            const gain = warningAudioCtx.createGain();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(880, warningAudioCtx.currentTime); // A5 note
+            osc.frequency.exponentialRampToValueAtTime(440, warningAudioCtx.currentTime + 0.5);
+            gain.gain.setValueAtTime(0.3, warningAudioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, warningAudioCtx.currentTime + 0.5);
+            osc.connect(gain);
+            gain.connect(warningAudioCtx.destination);
+            osc.start();
+            osc.stop(warningAudioCtx.currentTime + 0.5);
+        } catch (e) {
+            console.log("Audio play allowed after user interaction.");
+        }
+    }
+
+    // Fullscreen Enforcer
+    function requestFullscreenMode() {
+        if (!config.fullscreenEnabled) return;
+        const el = document.documentElement;
+        if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+            if (el.requestFullscreen) {
+                el.requestFullscreen().catch(() => {});
+            } else if (el.webkitRequestFullscreen) {
+                el.webkitRequestFullscreen();
+            }
+        }
+    }
+
+    // 1. Render Navigation Grids
+    function renderNavGrid() {
+        const desktopGrid = document.getElementById('desktopNumGrid');
+        const mobileGrid = document.getElementById('mobileNumGrid');
+        let html = '';
+        let answeredCount = 0;
+        let flaggedCount = 0;
+        let unansweredCount = 0;
+
+        config.questions.forEach((q, idx) => {
+            let classes = 'cbt-num-btn';
+            if (idx === currentIndex) classes += ' active';
+            if (q.savedOptionId) {
+                classes += ' answered';
+                answeredCount++;
+            } else {
+                unansweredCount++;
+            }
+            if (q.isDoubt) {
+                classes += ' flagged';
+                flaggedCount++;
+            }
+
+            html += `<div class="${classes}" onclick="jumpToQuestion(${idx})">${q.number}</div>`;
+        });
+
+        if (desktopGrid) desktopGrid.innerHTML = html;
+        if (mobileGrid) mobileGrid.innerHTML = html;
+
+        // Update Legend & Summary
+        document.getElementById('legendAnsweredCount').textContent = `${answeredCount} Soal`;
+        document.getElementById('legendFlaggedCount').textContent = `${flaggedCount} Soal`;
+        document.getElementById('legendUnansweredCount').textContent = `${unansweredCount} Soal`;
+        document.getElementById('legendActiveQuestionText').textContent = `No. ${currentIndex + 1}`;
+
+        document.getElementById('modalSummaryAnswered').textContent = `${answeredCount} Soal`;
+        document.getElementById('modalSummaryFlagged').textContent = `${flaggedCount} Soal`;
+        document.getElementById('modalSummaryUnanswered').textContent = `${unansweredCount} Soal`;
+    }
+
+    // 2. Render Current Question
+    function renderQuestion(index) {
+        if (index < 0 || index >= config.questions.length) return;
+        currentIndex = index;
+        const q = config.questions[currentIndex];
+
+        // Header Title
+        document.getElementById('currentQuestionTitle').textContent = `Soal No. ${q.number}`;
+
+        // Question Text Body
+        document.getElementById('questionTextContainer').innerHTML = `
+            <p class="fw-medium mb-3">${q.text}</p>
+            <p class="text-secondary small mb-0">Pilihlah salah satu jawaban yang Anda anggap paling benar di bawah ini:</p>
+        `;
+
+        // Answer Options
+        let optsHtml = '';
+        q.options.forEach(opt => {
+            const isSelected = q.savedOptionId === opt.id;
+            optsHtml += `
+                <label class="option-card mb-3 w-100 ${isSelected ? 'selected' : ''}" onclick="selectOption(${q.id}, ${opt.id})">
+                    <input type="radio" name="q_${q.id}" value="${opt.id}" ${isSelected ? 'checked' : ''} class="d-none">
+                    <div class="option-key">${opt.key}</div>
+                    <div class="option-text">${opt.text}</div>
+                </label>
+            `;
+        });
+        document.getElementById('optionsContainer').innerHTML = optsHtml;
+
+        // Flag Ragu-ragu Button State
+        const flagBtn = document.getElementById('btnFlagQuestion');
+        if (q.isDoubt) {
+            flagBtn.className = 'btn btn-sm btn-warning fw-semibold px-3 rounded-pill active';
+        } else {
+            flagBtn.className = 'btn btn-sm btn-outline-warning fw-semibold px-3 rounded-pill';
+        }
+
+        // Toolbar Buttons State
+        document.getElementById('btnPrevQuestion').disabled = (currentIndex === 0);
+        const isLast = (currentIndex === config.questions.length - 1);
+        const nextBtn = document.getElementById('btnNextQuestion');
+        const finishBtn = document.getElementById('btnFinishTrigger');
+
+        if (isLast) {
+            nextBtn.classList.add('d-none');
+            finishBtn.classList.remove('d-none');
+        } else {
+            nextBtn.classList.remove('d-none');
+            finishBtn.classList.add('d-none');
+        }
+
+        renderNavGrid();
+    }
+
+    // Global Option Select Handler with Auto-Save
+    window.selectOption = function (questionId, optionId) {
+        const q = config.questions[currentIndex];
+        q.savedOptionId = optionId;
+
+        renderQuestion(currentIndex);
+        triggerAutosave(q.id, optionId, q.isDoubt);
+    };
+
+    // Global Jump Handler
+    window.jumpToQuestion = function (idx) {
+        renderQuestion(idx);
+        const offcanvas = bootstrap.Offcanvas.getInstance(document.getElementById('cbtSidebarOffcanvas'));
+        if (offcanvas) offcanvas.hide();
+    };
+
+    // Prev / Next Listeners
+    document.getElementById('btnPrevQuestion').addEventListener('click', () => {
+        if (currentIndex > 0) renderQuestion(currentIndex - 1);
+    });
+
+    document.getElementById('btnNextQuestion').addEventListener('click', () => {
+        if (currentIndex < config.questions.length - 1) renderQuestion(currentIndex + 1);
+    });
+
+    // Ragu-ragu Toggle Handler
+    document.getElementById('btnFlagQuestion').addEventListener('click', function () {
+        const q = config.questions[currentIndex];
+        q.isDoubt = !q.isDoubt;
+        renderQuestion(currentIndex);
+        triggerAutosave(q.id, q.savedOptionId, q.isDoubt);
+    });
+
+    // AJAX Auto Save
+    function triggerAutosave(questionId, optionId, isDoubt) {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        fetch('/student/autosave-answer', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                session_id: config.sessionId,
+                question_id: questionId,
+                option_id: optionId,
+                is_doubt: isDoubt
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                const autoSaveEl = document.getElementById('autoSaveText');
+                if (autoSaveEl) {
+                    autoSaveEl.textContent = `Tersimpan otomatis ${data.timestamp || ''}`;
+                }
+            }
+        })
+        .catch(err => console.log('Autosave sync queued locally.'));
+    }
+
+    // 3. Timer Countdown Logic
+    const timerDisplay = document.getElementById('timerText');
+    const timerInterval = setInterval(() => {
+        if (timerSeconds <= 0) {
+            clearInterval(timerInterval);
+            timerDisplay.textContent = '00:00:00';
+            document.getElementById('finishExamForm').submit();
+            return;
+        }
+        timerSeconds--;
+        const hrs = String(Math.floor(timerSeconds / 3600)).padStart(2, '0');
+        const mins = String(Math.floor((timerSeconds % 3600) / 60)).padStart(2, '0');
+        const secs = String(timerSeconds % 60).padStart(2, '0');
+        const formatted = `${hrs}:${mins}:${secs}`;
+
+        timerDisplay.textContent = formatted;
+        document.getElementById('modalSummaryTimer').textContent = formatted;
+    }, 1000);
+
+    // 4. Anti-Cheat & Alarm Warning Popup System
+    let isWarningModalOpen = false;
+
+    function handleViolation(activityType, description) {
+        if (!config.antiCheatEnabled || isWarningModalOpen) return;
+
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        fetch('/student/log-violation', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                session_id: config.sessionId,
+                activity_type: activityType,
+                description: description
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                const vCount = data.violation_count;
+                document.getElementById('violationCountDisplay').textContent = vCount;
+
+                // Play Audio Alarm
+                playAlarmSound();
+
+                // Build Warning Popup Content
+                const modalTitle = document.getElementById('warningModalTitle');
+                const modalBody = document.getElementById('warningModalBody');
+
+                if (vCount === 1) {
+                    modalTitle.textContent = '⚠️ PERINGATAN 1/3';
+                    modalBody.textContent = 'Anda terdeteksi meninggalkan halaman ujian atau keluar dari mode fullscreen. Mohon kembali fokus mengerjakan. Aktivitas telah dicatat.';
+                } else if (vCount === 2) {
+                    modalTitle.textContent = '⚠️ PERINGATAN 2/3';
+                    modalBody.textContent = 'Aktivitas mencurigakan kembali terdeteksi. Satu pelanggaran lagi akan dilaporkan langsung ke Administrator.';
+                } else {
+                    modalTitle.textContent = '🚨 PERINGATAN TERAKHIR 3/3';
+                    modalBody.textContent = 'Batas pelanggaran telah tercapai. Aktivitas Anda telah dilaporkan kepada Admin Ujian. Tetap selesaikan sisa soal hingga waktu berakhir.';
+                }
+
+                // Trigger Modal
+                isWarningModalOpen = true;
+                const warningModalEl = document.getElementById('warningModal');
+                const modalInstance = new bootstrap.Modal(warningModalEl);
+                modalInstance.show();
+            }
+        });
+    }
+
+    // Acknowledge Warning & Re-enforce Fullscreen
+    document.getElementById('btnAcknowledgeWarning').addEventListener('click', () => {
+        isWarningModalOpen = false;
+        const warningModalEl = document.getElementById('warningModal');
+        const modalInstance = bootstrap.Modal.getInstance(warningModalEl);
+        if (modalInstance) modalInstance.hide();
+        requestFullscreenMode();
+    });
+
+    // Detect Tab Switching & Visibility Change
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            handleViolation('pindah_tab', 'Peserta terdeteksi berpindah tab atau meminimalkan browser');
+        }
+    });
+
+    // Detect Window Blur / Focus Out
+    window.addEventListener('blur', () => {
+        handleViolation('window_blur', 'Peserta terdeteksi mengklik luar jendela browser');
+    });
+
+    // Detect Fullscreen Exit
+    document.addEventListener('fullscreenchange', () => {
+        if (!document.fullscreenElement) {
+            handleViolation('keluar_fullscreen', 'Peserta terdeteksi keluar dari mode layar penuh (Fullscreen)');
+        }
+    });
+
+    // Initial Start: Render Q1 & Request Fullscreen
+    renderQuestion(0);
+    setTimeout(requestFullscreenMode, 1000);
+});
+</script>
+@endpush

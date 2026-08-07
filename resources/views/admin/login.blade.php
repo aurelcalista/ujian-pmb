@@ -14,7 +14,14 @@
                     <p class="text-muted small mt-1">CBT Seleksi PMB Universitas Catur Insan Cendekia</p>
                 </div>
 
-                <form action="{{ url('/admin/dashboard') }}" method="GET">
+                <form action="{{ url('/admin/login') }}" method="POST">
+                    @csrf
+
+                    @if($errors->any())
+                        <div class="alert alert-danger p-3 rounded-3 small mb-3">
+                            <i class="bi bi-exclamation-triangle-fill me-1"></i> {{ $errors->first() }}
+                        </div>
+                    @endif
                     
                     <!-- Email -->
                     <div class="mb-3">

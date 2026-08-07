@@ -47,91 +47,38 @@
                 </tr>
             </thead>
             <tbody>
+            <tbody>
+                @forelse($sessions as $index => $session)
                 <tr>
-                    <td>1</td>
+                    <td>{{ $index + 1 }}</td>
                     <td>
-                        <div class="fw-bold text-dark">Ahmad Fauzi</div>
-                        <small class="text-muted" style="font-size: 0.75rem;">ID: PMB-2026-001</small>
+                        <div class="fw-bold text-dark">{{ $session->participant->name ?? 'Peserta' }}</div>
+                        <small class="text-muted" style="font-size: 0.75rem;">ID: PMB-2026-{{ str_pad($session->participant->id ?? 1, 3, '0', STR_PAD_LEFT) }}</small>
                     </td>
-                    <td>SMAN 1 Cirebon</td>
-                    <td><span class="badge bg-ucic-light text-ucic-primary">S1 Teknik Informatika</span></td>
-                    <td><span class="badge bg-light text-dark border">S1 Sistem Informasi</span></td>
-                    <td><span class="badge-ucic-success"><i class="bi bi-check-circle me-1"></i>Selesai</span></td>
-                    <td class="text-muted small">07 Aug 2026, 11:15</td>
+                    <td>{{ $session->participant->school_origin ?? '-' }}</td>
+                    <td><span class="badge bg-ucic-light text-ucic-primary">{{ $session->participant->major_choice_1 ?? '-' }}</span></td>
+                    <td><span class="badge bg-light text-dark border">{{ $session->participant->major_choice_2 ?? '-' }}</span></td>
+                    <td>
+                        @if($session->status === 'finished')
+                            <span class="badge-ucic-success"><i class="bi bi-check-circle me-1"></i>Selesai</span>
+                        @else
+                            <span class="badge-ucic-warning"><i class="bi bi-clock-history me-1"></i>Sedang Ujian</span>
+                        @endif
+                    </td>
+                    <td class="text-muted small">{{ $session->finished_at ? $session->finished_at->format('d M Y, H:i') : '-' }}</td>
                     <td class="text-center">
                         <div class="btn-group btn-group-sm">
-                            <button class="btn btn-light text-primary" title="Detail Peserta" onclick="alert('Detail Peserta: Ahmad Fauzi (SMAN 1 Cirebon)');">
+                            <button class="btn btn-light text-primary" title="Detail Peserta" onclick="alert('Nama: {{ $session->participant->name ?? '' }}\nSekolah: {{ $session->participant->school_origin ?? '' }}\nProdi 1: {{ $session->participant->major_choice_1 ?? '' }}\nProdi 2: {{ $session->participant->major_choice_2 ?? '' }}\nPelanggaran: {{ $session->violation_count }} Warning');">
                                 <i class="bi bi-eye-fill"></i>
                             </button>
-                            <button class="btn btn-light text-warning" title="Reset Akses Ujian" onclick="confirm('Apakah Anda yakin ingin mereset akses ujian peserta ini?');">
-                                <i class="bi bi-arrow-counterclockwise"></i>
-                            </button>
-                            <button class="btn btn-light text-danger" title="Hapus Peserta" onclick="confirm('Apakah Anda yakin ingin menghapus peserta ini?');">
-                                <i class="bi bi-trash-fill"></i>
-                            </button>
                         </div>
                     </td>
                 </tr>
-
+                @empty
                 <tr>
-                    <td>2</td>
-                    <td>
-                        <div class="fw-bold text-dark">Bintang Pratama</div>
-                        <small class="text-muted" style="font-size: 0.75rem;">ID: PMB-2026-002</small>
-                    </td>
-                    <td>SMKN 1 Cirebon</td>
-                    <td><span class="badge bg-ucic-light text-ucic-primary">S1 Sistem Informasi</span></td>
-                    <td><span class="badge bg-light text-dark border">S1 DKV</span></td>
-                    <td><span class="badge-ucic-warning"><i class="bi bi-clock-history me-1"></i>Sedang Ujian</span></td>
-                    <td class="text-muted small">-</td>
-                    <td class="text-center">
-                        <div class="btn-group btn-group-sm">
-                            <button class="btn btn-light text-primary" title="Detail Peserta"><i class="bi bi-eye-fill"></i></button>
-                            <button class="btn btn-light text-warning" title="Reset Ujian"><i class="bi bi-arrow-counterclockwise"></i></button>
-                            <button class="btn btn-light text-danger" title="Hapus"><i class="bi bi-trash-fill"></i></button>
-                        </div>
-                    </td>
+                    <td colspan="8" class="text-center py-4 text-muted">Belum ada data peserta ujian.</td>
                 </tr>
-
-                <tr>
-                    <td>3</td>
-                    <td>
-                        <div class="fw-bold text-dark">Citra Kirana</div>
-                        <small class="text-muted" style="font-size: 0.75rem;">ID: PMB-2026-003</small>
-                    </td>
-                    <td>SMA BPK Penabur</td>
-                    <td><span class="badge bg-ucic-light text-ucic-primary">S1 DKV</span></td>
-                    <td><span class="badge bg-light text-dark border">S1 Manajemen</span></td>
-                    <td><span class="badge-ucic-success"><i class="bi bi-check-circle me-1"></i>Selesai</span></td>
-                    <td class="text-muted small">07 Aug 2026, 10:45</td>
-                    <td class="text-center">
-                        <div class="btn-group btn-group-sm">
-                            <button class="btn btn-light text-primary" title="Detail Peserta"><i class="bi bi-eye-fill"></i></button>
-                            <button class="btn btn-light text-warning" title="Reset Ujian"><i class="bi bi-arrow-counterclockwise"></i></button>
-                            <button class="btn btn-light text-danger" title="Hapus"><i class="bi bi-trash-fill"></i></button>
-                        </div>
-                    </td>
-                </tr>
-
-                <tr>
-                    <td>4</td>
-                    <td>
-                        <div class="fw-bold text-dark">Dewi Sartika</div>
-                        <small class="text-muted" style="font-size: 0.75rem;">ID: PMB-2026-004</small>
-                    </td>
-                    <td>SMA Al-Azhar Cirebon</td>
-                    <td><span class="badge bg-ucic-light text-ucic-primary">S1 Manajemen</span></td>
-                    <td><span class="badge bg-light text-dark border">S1 Akuntansi</span></td>
-                    <td><span class="badge-ucic-success"><i class="bi bi-check-circle me-1"></i>Selesai</span></td>
-                    <td class="text-muted small">07 Aug 2026, 10:30</td>
-                    <td class="text-center">
-                        <div class="btn-group btn-group-sm">
-                            <button class="btn btn-light text-primary" title="Detail Peserta"><i class="bi bi-eye-fill"></i></button>
-                            <button class="btn btn-light text-warning" title="Reset Ujian"><i class="bi bi-arrow-counterclockwise"></i></button>
-                            <button class="btn btn-light text-danger" title="Hapus"><i class="bi bi-trash-fill"></i></button>
-                        </div>
-                    </td>
-                </tr>
+                @endforelse
             </tbody>
         </table>
     </div>

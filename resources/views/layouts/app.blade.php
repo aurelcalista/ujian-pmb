@@ -3,7 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'CBT PMB Universitas Catur Insan Cendekia (UCIC)')</title>
+
+    <!-- Favicon / Logo UCIC Emblem Only -->
+    <link rel="icon" type="image/png" href="{{ asset('images/favicon-ucic.png') }}">
+    <link rel="shortcut icon" type="image/png" href="{{ asset('images/favicon-ucic.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('images/favicon-ucic.png') }}">
 
     <!-- Google Fonts Poppins -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
