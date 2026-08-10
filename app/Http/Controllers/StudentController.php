@@ -115,7 +115,11 @@ class StudentController extends Controller
         $exam = Exam::findOrFail($examId);
         $questionsCount = Question::where('exam_id', $exam->id)->count();
 
-        return view('student.exam-info', compact('participant', 'exam', 'questionsCount'));
+        $now = now();
+        $isExamStarted = $exam->start_time ? $now->greaterThanOrEqualTo($exam->start_time) : true;
+        $isExamEnded = $exam->end_time ? $now->greaterThan($exam->end_time) : false;
+
+        return view('student.exam-info', compact('participant', 'exam', 'questionsCount', 'isExamStarted', 'isExamEnded'));
     }
 
     /**
@@ -132,6 +136,18 @@ class StudentController extends Controller
 
         $participant = Participant::findOrFail($participantId);
         $exam = Exam::findOrFail($examId);
+
+        $now = now();
+        $isExamStarted = $exam->start_time ? $now->greaterThanOrEqualTo($exam->start_time) : true;
+        $isExamEnded = $exam->end_time ? $now->greaterThan($exam->end_time) : false;
+
+        if (!$isExamStarted) {
+            return back()->with('error', 'Ujian belum dimulai. Harap tunggu hingga waktu ujian tiba.');
+        }
+
+        if ($isExamEnded) {
+            return back()->with('error', 'Waktu ujian telah berakhir. Anda tidak dapat memulai ujian.');
+        }
 
         // Find existing session or create new one
         $session = ExamSession::where('participant_id', $participantId)

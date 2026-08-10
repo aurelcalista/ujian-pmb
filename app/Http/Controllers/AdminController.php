@@ -496,6 +496,8 @@ class AdminController extends Controller
         if ($exam) {
             $exam->update([
                 'duration' => $request->input('duration', $exam->duration),
+                'start_time' => $request->input('start_time', $exam->start_time),
+                'end_time' => $request->input('end_time', $exam->end_time),
                 'max_violation' => $request->input('max_violation', $exam->max_violation),
                 'shuffle_questions' => $request->has('shuffle_questions') ? (bool)$request->shuffle_questions : $exam->shuffle_questions,
                 'shuffle_options' => $request->has('shuffle_options') ? (bool)$request->shuffle_options : $exam->shuffle_options,

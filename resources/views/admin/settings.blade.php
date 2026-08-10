@@ -42,7 +42,7 @@
 
                     <div class="row g-4 mb-4">
                         <!-- Status Ujian Toggle -->
-                        <div class="col-md-6">
+                        <div class="col-md-12">
                             <label for="examStatus" class="form-label-ucic">Status Akses Ujian Peserta</label>
                             <select class="form-select form-select-ucic" id="examStatus" name="status">
                                 <option value="active" {{ ($exam->status ?? 'active') === 'active' ? 'selected' : '' }}>Aktif (Dapat Diakses Peserta)</option>
@@ -50,10 +50,22 @@
                                 <option value="finished" {{ ($exam->status ?? '') === 'finished' ? 'selected' : '' }}>Non-Aktif (Selesai/Ditutup)</option>
                             </select>
                         </div>
+                        
+                        <!-- Waktu Mulai -->
+                        <div class="col-md-4">
+                            <label for="start_time" class="form-label-ucic">Waktu Mulai <span class="text-danger">*</span></label>
+                            <input type="datetime-local" class="form-control form-control-ucic" id="start_time" name="start_time" value="{{ $exam && $exam->start_time ? $exam->start_time->format('Y-m-d\TH:i') : '' }}" required>
+                        </div>
+
+                        <!-- Waktu Selesai -->
+                        <div class="col-md-4">
+                            <label for="end_time" class="form-label-ucic">Waktu Selesai <span class="text-danger">*</span></label>
+                            <input type="datetime-local" class="form-control form-control-ucic" id="end_time" name="end_time" value="{{ $exam && $exam->end_time ? $exam->end_time->format('Y-m-d\TH:i') : '' }}" required>
+                        </div>
 
                         <!-- Durasi Ujian -->
-                        <div class="col-md-6">
-                            <label for="examDuration" class="form-label-ucic">Durasi Pengerjaan Ujian (Menit)</label>
+                        <div class="col-md-4">
+                            <label for="examDuration" class="form-label-ucic">Durasi (Menit)</label>
                             <div class="input-group">
                                 <input type="number" class="form-control form-control-ucic border-end-0" id="examDuration" name="duration" value="{{ $exam->duration ?? 90 }}" min="10" max="300" required>
                                 <span class="input-group-text bg-light text-muted border-start-0" style="border-radius: 0 12px 12px 0;">Menit</span>

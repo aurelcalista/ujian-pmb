@@ -251,6 +251,21 @@
         </div>
     </div>
 </div>
+<!-- FULLSCREEN ENTRY OVERLAY -->
+<div id="fullscreenEntryOverlay" class="position-fixed top-0 start-0 w-100 h-100 bg-white d-none flex-column align-items-center justify-content-center" style="z-index: 9999;">
+    <div class="text-center p-4">
+        <div class="mb-4 text-ucic-primary" style="font-size: 4rem;">
+            <i class="bi bi-laptop"></i>
+        </div>
+        <h3 class="fw-bold mb-2">Siap Mengerjakan Ujian?</h3>
+        <p class="text-secondary mb-4" style="max-width: 400px; margin: 0 auto;">
+            Sistem membutuhkan izin Layar Penuh (Fullscreen) untuk mengaktifkan fitur Anti-Cheat. Pastikan Anda tidak keluar dari layar penuh selama ujian berlangsung.
+        </p>
+        <button type="button" class="btn btn-ucic-primary btn-lg px-5 py-3 fw-bold shadow" id="btnEnterExamFullscreen" style="border-radius: 12px;">
+            <i class="bi bi-arrows-fullscreen me-2"></i> Masuk Ujian (Fullscreen)
+        </button>
+    </div>
+</div>
 @endsection
 
 
@@ -320,11 +335,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Fullscreen Enforcer
     function requestFullscreenMode() {
-        if (!config.fullscreenEnabled) return;
+        if (!config.antiCheatEnabled) return;
         const el = document.documentElement;
         if (!document.fullscreenElement && !document.webkitFullscreenElement) {
             if (el.requestFullscreen) {
-                el.requestFullscreen().catch(() => {});
+                el.requestFullscreen().catch((err) => { console.error("Error attempting to enable fullscreen:", err); });
             } else if (el.webkitRequestFullscreen) {
                 el.webkitRequestFullscreen();
             }
@@ -522,34 +537,50 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // 4. Anti-Cheat & Alarm Warning Popup System
     let isWarningModalOpen = false;
+    let alarmInterval = null;
+    let sharedAudioCtx = null;
 
     function playAlarmSound() {
+        if (alarmInterval) return; // Already playing
+
         try {
             const AudioContext = window.AudioContext || window.webkitAudioContext;
             if (!AudioContext) return;
-            const audioCtx = new AudioContext();
+            if (!sharedAudioCtx) sharedAudioCtx = new AudioContext();
             
-            // Create 3 rapid beeps
-            for (let i = 0; i < 3; i++) {
-                const oscillator = audioCtx.createOscillator();
-                const gainNode = audioCtx.createGain();
-                
-                oscillator.type = 'square';
-                oscillator.frequency.setValueAtTime(800, audioCtx.currentTime + (i * 0.3));
-                oscillator.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + (i * 0.3) + 0.1);
-                
-                gainNode.gain.setValueAtTime(0, audioCtx.currentTime + (i * 0.3));
-                gainNode.gain.linearRampToValueAtTime(0.5, audioCtx.currentTime + (i * 0.3) + 0.05);
-                gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + (i * 0.3) + 0.2);
-                
-                oscillator.connect(gainNode);
-                gainNode.connect(audioCtx.destination);
-                
-                oscillator.start(audioCtx.currentTime + (i * 0.3));
-                oscillator.stop(audioCtx.currentTime + (i * 0.3) + 0.2);
+            function playBeeps() {
+                // Create 3 rapid beeps
+                for (let i = 0; i < 3; i++) {
+                    const oscillator = sharedAudioCtx.createOscillator();
+                    const gainNode = sharedAudioCtx.createGain();
+                    
+                    oscillator.type = 'square';
+                    oscillator.frequency.setValueAtTime(800, sharedAudioCtx.currentTime + (i * 0.3));
+                    oscillator.frequency.exponentialRampToValueAtTime(1200, sharedAudioCtx.currentTime + (i * 0.3) + 0.1);
+                    
+                    gainNode.gain.setValueAtTime(0, sharedAudioCtx.currentTime + (i * 0.3));
+                    gainNode.gain.linearRampToValueAtTime(0.5, sharedAudioCtx.currentTime + (i * 0.3) + 0.05);
+                    gainNode.gain.linearRampToValueAtTime(0, sharedAudioCtx.currentTime + (i * 0.3) + 0.2);
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(sharedAudioCtx.destination);
+                    
+                    oscillator.start(sharedAudioCtx.currentTime + (i * 0.3));
+                    oscillator.stop(sharedAudioCtx.currentTime + (i * 0.3) + 0.2);
+                }
             }
+
+            playBeeps();
+            alarmInterval = setInterval(playBeeps, 1000);
         } catch (e) {
             console.error("Audio API not supported or blocked");
+        }
+    }
+
+    function stopAlarmSound() {
+        if (alarmInterval) {
+            clearInterval(alarmInterval);
+            alarmInterval = null;
         }
     }
 
@@ -602,6 +633,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Acknowledge Warning & Re-enforce Fullscreen
     document.getElementById('btnAcknowledgeWarning').addEventListener('click', () => {
+        stopAlarmSound();
         if (config.violationCount >= config.maxViolation) {
             window.location.href = '/student/blocked';
             return;
@@ -639,26 +671,42 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('questionTextContainer').innerHTML = '<div class="alert alert-warning">Soal tidak ditemukan. Mungkin soal baru saja ditambahkan setelah Anda mulai ujian. Harap hubungi Admin.</div>';
     }
     
-    setTimeout(requestFullscreenMode, 1000);
-
-    // Initialize AudioContext on first user interaction to bypass mobile auto-play policies
-    document.addEventListener('click', function initAudio() {
-        if (!window.audioCtxInited) {
-            try {
-                const AudioContext = window.AudioContext || window.webkitAudioContext;
-                if (AudioContext) {
-                    const ctx = new AudioContext();
-                    // Play silent sound to unlock
-                    const osc = ctx.createOscillator();
-                    osc.connect(ctx.destination);
-                    osc.start();
-                    osc.stop(ctx.currentTime + 0.001);
-                    window.audioCtxInited = true;
-                }
-            } catch(e){}
-        }
-        document.removeEventListener('click', initAudio);
-    }, { once: true });
+    // Fullscreen Entry Logic (Exambro Style)
+    const overlay = document.getElementById('fullscreenEntryOverlay');
+    const btnEnter = document.getElementById('btnEnterExamFullscreen');
+    
+    if (config.antiCheatEnabled) {
+        // Show overlay blocking the exam until user clicks to enter fullscreen
+        overlay.classList.remove('d-none');
+        overlay.classList.add('d-flex');
+        
+        btnEnter.addEventListener('click', () => {
+            requestFullscreenMode();
+            overlay.classList.remove('d-flex');
+            overlay.classList.add('d-none');
+            
+            // Initialize AudioContext on this deliberate user gesture
+            if (!window.audioCtxInited) {
+                try {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    if (AudioContext) {
+                        if (!sharedAudioCtx) sharedAudioCtx = new AudioContext();
+                        if (sharedAudioCtx.state === 'suspended') {
+                            sharedAudioCtx.resume();
+                        }
+                        const osc = sharedAudioCtx.createOscillator();
+                        osc.connect(sharedAudioCtx.destination);
+                        osc.start();
+                        osc.stop(sharedAudioCtx.currentTime + 0.001);
+                        window.audioCtxInited = true;
+                    }
+                } catch(e){}
+            }
+        });
+    } else {
+        // If anti-cheat is disabled, just try to request fullscreen gracefully (will likely be ignored by browser without gesture)
+        setTimeout(requestFullscreenMode, 1000);
+    }
 });
 </script>
 @endpush

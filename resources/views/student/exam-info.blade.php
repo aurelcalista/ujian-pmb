@@ -128,14 +128,40 @@
                         </div>
                     </div>
 
+                    <!-- Status Messages -->
+                    @if(session('error'))
+                        <div class="alert alert-danger border-0 text-dark p-3 rounded-4 mb-4">
+                            <i class="bi bi-x-circle-fill text-danger me-2"></i> {{ session('error') }}
+                        </div>
+                    @endif
+
+                    @if(!$isExamStarted)
+                        <div class="alert alert-info border-0 text-dark p-3 rounded-4 mb-4">
+                            <i class="bi bi-info-circle-fill text-info me-2"></i> Ujian belum dimulai. Ujian akan dimulai pada <strong>{{ $exam->start_time ? \Carbon\Carbon::parse($exam->start_time)->translatedFormat('d F Y H:i') : '-' }}</strong>.
+                        </div>
+                    @endif
+
+                    @if($isExamEnded)
+                        <div class="alert alert-danger border-0 text-dark p-3 rounded-4 mb-4">
+                            <i class="bi bi-x-circle-fill text-danger me-2"></i> Ujian telah berakhir pada <strong>{{ $exam->end_time ? \Carbon\Carbon::parse($exam->end_time)->translatedFormat('d F Y H:i') : '-' }}</strong>. Anda tidak dapat memulai ujian.
+                        </div>
+                    @endif
+
                     <!-- Confirm CTA -->
                     <div class="text-center pt-2">
                         <form action="{{ url('/student/start') }}" method="POST">
                             @csrf
-                            <button type="submit" class="btn btn-ucic-primary btn-lg px-5 py-3 fs-6 d-inline-flex align-items-center gap-2">
-                                <i class="bi bi-play-circle-fill fs-5"></i>
-                                <span>Mulai Ujian Sekarang</span>
-                            </button>
+                            @if(!$isExamStarted || $isExamEnded)
+                                <button type="button" class="btn btn-secondary btn-lg px-5 py-3 fs-6 d-inline-flex align-items-center gap-2" disabled>
+                                    <i class="bi bi-lock-fill fs-5"></i>
+                                    <span>Belum Tersedia</span>
+                                </button>
+                            @else
+                                <button type="submit" class="btn btn-ucic-primary btn-lg px-5 py-3 fs-6 d-inline-flex align-items-center gap-2">
+                                    <i class="bi bi-play-circle-fill fs-5"></i>
+                                    <span>Mulai Ujian Sekarang</span>
+                                </button>
+                            @endif
                         </form>
                     </div>
                 </div>
