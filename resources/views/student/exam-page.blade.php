@@ -237,7 +237,22 @@
         </div>
     </div>
 </div>
+
+<!-- IMAGE ZOOM MODAL -->
+<div class="modal fade" id="imageZoomModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content bg-transparent border-0">
+            <div class="modal-header border-0 pb-0 position-absolute w-100 justify-content-end" style="z-index: 10;">
+                <button type="button" class="btn-close btn-close-white m-2" data-bs-dismiss="modal" aria-label="Close" style="background-color: rgba(0,0,0,0.5); border-radius: 50%; padding: 0.5rem;"></button>
+            </div>
+            <div class="modal-body text-center p-0 mt-4">
+                <img src="" id="zoomedImage" class="img-fluid rounded shadow-lg bg-white" style="max-height: 85vh; object-fit: contain;">
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
+
 
 @push('scripts')
 <script>
@@ -366,7 +381,7 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('currentQuestionTitle').textContent = `Soal No. ${q.number}`;
 
         // Question Text Body
-        let imageHtml = q.image ? '<div class="mb-3 text-center"><img src="' + q.image + '" alt="Gambar Soal" class="img-fluid rounded border" style="max-height: 250px;"></div>' : '';
+        let imageHtml = q.image ? '<div class="mb-3 text-center"><img src="' + q.image + '" alt="Gambar Soal" class="img-fluid rounded border" style="max-height: 250px; cursor: zoom-in;" onclick="openImageZoom(this.src)"></div>' : '';
         document.getElementById('questionTextContainer').innerHTML = imageHtml + `
             <p class="fw-medium mb-3">${q.text}</p>
             <p class="text-secondary small mb-0">Pilihlah salah satu jawaban yang Anda anggap paling benar di bawah ini:</p>
@@ -425,6 +440,13 @@ document.addEventListener('DOMContentLoaded', function () {
         renderQuestion(idx);
         const offcanvas = bootstrap.Offcanvas.getInstance(document.getElementById('cbtSidebarOffcanvas'));
         if (offcanvas) offcanvas.hide();
+    };
+
+    // Global Image Zoom Handler
+    window.openImageZoom = function(src) {
+        document.getElementById('zoomedImage').src = src;
+        const zoomModal = new bootstrap.Modal(document.getElementById('imageZoomModal'));
+        zoomModal.show();
     };
 
     // Prev / Next Listeners

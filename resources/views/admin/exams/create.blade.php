@@ -130,38 +130,52 @@
 
                 <label class="form-label-ucic mb-2">Pilihan Jawaban (Pilih salah satu radio sebagai Kunci Jawaban Benar)</label>
                 
-                <div class="options-group space-y-2">
-                    <div class="input-group mb-2">
-                        <div class="input-group-text bg-light">
-                            <input type="radio" class="form-check-input mt-0" name="questions[0][correct_index]" value="0" checked title="Pilih sebagai jawaban benar">
-                            <span class="ms-2 fw-bold">A</span>
+                <div class="options-group space-y-2" id="optionsGroup-0">
+                    <div class="input-group mb-2 option-row" data-option-index="0">
+                        <div class="input-group-text bg-light pe-3">
+                            <input type="radio" class="form-check-input mt-0 correct-radio me-2" name="questions[0][correct_index]" value="0" checked title="Pilih sebagai jawaban benar">
+                            <span class="fw-bold option-letter">A</span>
                         </div>
-                        <input type="text" class="form-control form-control-ucic" name="questions[0][options][0]" placeholder="Teks Pilihan A" required>
+                        <input type="text" class="form-control form-control-ucic" name="questions[0][options][0]" placeholder="Teks Pilihan" required>
+                        <button type="button" class="btn btn-outline-danger btn-remove-option" title="Hapus Opsi">
+                            <i class="bi bi-trash"></i>
+                        </button>
                     </div>
-
-                    <div class="input-group mb-2">
-                        <div class="input-group-text bg-light">
-                            <input type="radio" class="form-check-input mt-0" name="questions[0][correct_index]" value="1" title="Pilih sebagai jawaban benar">
-                            <span class="ms-2 fw-bold">B</span>
+                    <div class="input-group mb-2 option-row" data-option-index="1">
+                        <div class="input-group-text bg-light pe-3">
+                            <input type="radio" class="form-check-input mt-0 correct-radio me-2" name="questions[0][correct_index]" value="1" title="Pilih sebagai jawaban benar">
+                            <span class="fw-bold option-letter">B</span>
                         </div>
-                        <input type="text" class="form-control form-control-ucic" name="questions[0][options][1]" placeholder="Teks Pilihan B" required>
+                        <input type="text" class="form-control form-control-ucic" name="questions[0][options][1]" placeholder="Teks Pilihan" required>
+                        <button type="button" class="btn btn-outline-danger btn-remove-option" title="Hapus Opsi">
+                            <i class="bi bi-trash"></i>
+                        </button>
                     </div>
-
-                    <div class="input-group mb-2">
-                        <div class="input-group-text bg-light">
-                            <input type="radio" class="form-check-input mt-0" name="questions[0][correct_index]" value="2" title="Pilih sebagai jawaban benar">
-                            <span class="ms-2 fw-bold">C</span>
+                    <div class="input-group mb-2 option-row" data-option-index="2">
+                        <div class="input-group-text bg-light pe-3">
+                            <input type="radio" class="form-check-input mt-0 correct-radio me-2" name="questions[0][correct_index]" value="2" title="Pilih sebagai jawaban benar">
+                            <span class="fw-bold option-letter">C</span>
                         </div>
-                        <input type="text" class="form-control form-control-ucic" name="questions[0][options][2]" placeholder="Teks Pilihan C">
+                        <input type="text" class="form-control form-control-ucic" name="questions[0][options][2]" placeholder="Teks Pilihan">
+                        <button type="button" class="btn btn-outline-danger btn-remove-option" title="Hapus Opsi">
+                            <i class="bi bi-trash"></i>
+                        </button>
                     </div>
-
-                    <div class="input-group mb-2">
-                        <div class="input-group-text bg-light">
-                            <input type="radio" class="form-check-input mt-0" name="questions[0][correct_index]" value="3" title="Pilih sebagai jawaban benar">
-                            <span class="ms-2 fw-bold">D</span>
+                    <div class="input-group mb-2 option-row" data-option-index="3">
+                        <div class="input-group-text bg-light pe-3">
+                            <input type="radio" class="form-check-input mt-0 correct-radio me-2" name="questions[0][correct_index]" value="3" title="Pilih sebagai jawaban benar">
+                            <span class="fw-bold option-letter">D</span>
                         </div>
-                        <input type="text" class="form-control form-control-ucic" name="questions[0][options][3]" placeholder="Teks Pilihan D">
+                        <input type="text" class="form-control form-control-ucic" name="questions[0][options][3]" placeholder="Teks Pilihan">
+                        <button type="button" class="btn btn-outline-danger btn-remove-option" title="Hapus Opsi">
+                            <i class="bi bi-trash"></i>
+                        </button>
                     </div>
+                </div>
+                <div class="mt-2 text-start">
+                    <button type="button" class="btn btn-sm btn-outline-secondary btn-add-option" data-qindex="0">
+                        <i class="bi bi-plus-circle"></i> Tambah Pilihan
+                    </button>
                 </div>
             </div>
         </div>
@@ -221,38 +235,32 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     <label class="form-label-ucic mb-2">Pilihan Jawaban (Pilih salah satu radio sebagai Kunci Jawaban Benar)</label>
                     
-                    <div class="options-group space-y-2">
-                        <div class="input-group mb-2">
-                            <div class="input-group-text bg-light">
-                                <input type="radio" class="form-check-input mt-0" name="questions[${qIdx}][correct_index]" value="0" checked title="Pilih sebagai jawaban benar">
-                                <span class="ms-2 fw-bold">A</span>
+                    <div class="options-group space-y-2" id="optionsGroup-${qIdx}">
+                        <div class="input-group mb-2 option-row" data-option-index="0">
+                            <div class="input-group-text bg-light pe-3">
+                                <input type="radio" class="form-check-input mt-0 correct-radio me-2" name="questions[${qIdx}][correct_index]" value="0" checked title="Pilih sebagai jawaban benar">
+                                <span class="fw-bold option-letter">A</span>
                             </div>
-                            <input type="text" class="form-control form-control-ucic" name="questions[${qIdx}][options][0]" placeholder="Teks Pilihan A" required>
+                            <input type="text" class="form-control form-control-ucic" name="questions[${qIdx}][options][0]" placeholder="Teks Pilihan" required>
+                            <button type="button" class="btn btn-outline-danger btn-remove-option" title="Hapus Opsi">
+                                <i class="bi bi-trash"></i>
+                            </button>
                         </div>
-
-                        <div class="input-group mb-2">
-                            <div class="input-group-text bg-light">
-                                <input type="radio" class="form-check-input mt-0" name="questions[${qIdx}][correct_index]" value="1" title="Pilih sebagai jawaban benar">
-                                <span class="ms-2 fw-bold">B</span>
+                        <div class="input-group mb-2 option-row" data-option-index="1">
+                            <div class="input-group-text bg-light pe-3">
+                                <input type="radio" class="form-check-input mt-0 correct-radio me-2" name="questions[${qIdx}][correct_index]" value="1" title="Pilih sebagai jawaban benar">
+                                <span class="fw-bold option-letter">B</span>
                             </div>
-                            <input type="text" class="form-control form-control-ucic" name="questions[${qIdx}][options][1]" placeholder="Teks Pilihan B" required>
+                            <input type="text" class="form-control form-control-ucic" name="questions[${qIdx}][options][1]" placeholder="Teks Pilihan" required>
+                            <button type="button" class="btn btn-outline-danger btn-remove-option" title="Hapus Opsi">
+                                <i class="bi bi-trash"></i>
+                            </button>
                         </div>
-
-                        <div class="input-group mb-2">
-                            <div class="input-group-text bg-light">
-                                <input type="radio" class="form-check-input mt-0" name="questions[${qIdx}][correct_index]" value="2" title="Pilih sebagai jawaban benar">
-                                <span class="ms-2 fw-bold">C</span>
-                            </div>
-                            <input type="text" class="form-control form-control-ucic" name="questions[${qIdx}][options][2]" placeholder="Teks Pilihan C">
-                        </div>
-
-                        <div class="input-group mb-2">
-                            <div class="input-group-text bg-light">
-                                <input type="radio" class="form-check-input mt-0" name="questions[${qIdx}][correct_index]" value="3" title="Pilih sebagai jawaban benar">
-                                <span class="ms-2 fw-bold">D</span>
-                            </div>
-                            <input type="text" class="form-control form-control-ucic" name="questions[${qIdx}][options][3]" placeholder="Teks Pilihan D">
-                        </div>
+                    </div>
+                    <div class="mt-2 text-start">
+                        <button type="button" class="btn btn-sm btn-outline-secondary btn-add-option" data-qindex="${qIdx}">
+                            <i class="bi bi-plus-circle"></i> Tambah Pilihan
+                        </button>
                     </div>
                 </div>
             </div>
@@ -279,6 +287,57 @@ document.addEventListener('DOMContentLoaded', function () {
         document.querySelectorAll('.question-card-item').forEach((item, index) => {
             const titleEl = item.querySelector('.question-title-text');
             if (titleEl) titleEl.textContent = `Soal #${index + 1}`;
+        });
+    }
+
+    // Handle Add/Remove Option
+    document.getElementById('questionsContainer').addEventListener('click', function(e) {
+        // Hapus Opsi
+        if (e.target.closest('.btn-remove-option')) {
+            const btn = e.target.closest('.btn-remove-option');
+            const row = btn.closest('.option-row');
+            const group = row.closest('.options-group');
+            if (group.querySelectorAll('.option-row').length > 2) {
+                row.remove();
+                reindexOptions(group);
+            } else {
+                alert('Setiap soal minimal harus memiliki 2 pilihan jawaban.');
+            }
+        }
+        
+        // Tambah Opsi
+        if (e.target.closest('.btn-add-option')) {
+            const btn = e.target.closest('.btn-add-option');
+            const qIdx = btn.getAttribute('data-qindex');
+            const group = document.getElementById(`optionsGroup-${qIdx}`);
+            const oIdx = group.querySelectorAll('.option-row').length;
+            
+            const html = `
+                <div class="input-group mb-2 option-row" data-option-index="${oIdx}">
+                    <div class="input-group-text bg-light pe-3">
+                        <input type="radio" class="form-check-input mt-0 correct-radio me-2" name="questions[${qIdx}][correct_index]" value="${oIdx}" title="Pilih sebagai jawaban benar">
+                        <span class="fw-bold option-letter">${String.fromCharCode(65 + oIdx)}</span>
+                    </div>
+                    <input type="text" class="form-control form-control-ucic" name="questions[${qIdx}][options][${oIdx}]" placeholder="Teks Pilihan" required>
+                    <button type="button" class="btn btn-outline-danger btn-remove-option" title="Hapus Opsi">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
+            `;
+            group.insertAdjacentHTML('beforeend', html);
+        }
+    });
+
+    function reindexOptions(group) {
+        const qIdx = group.id.replace('optionsGroup-', '');
+        group.querySelectorAll('.option-row').forEach((row, index) => {
+            row.setAttribute('data-option-index', index);
+            const radio = row.querySelector('.correct-radio');
+            radio.value = index;
+            const input = row.querySelector('input[type="text"]');
+            input.name = `questions[${qIdx}][options][${index}]`;
+            const letter = row.querySelector('.option-letter');
+            if (letter) letter.textContent = String.fromCharCode(65 + index);
         });
     }
 
