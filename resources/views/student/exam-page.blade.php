@@ -522,7 +522,7 @@ document.addEventListener('DOMContentLoaded', function () {
         timerSeconds--;
         const hrs = String(Math.floor(timerSeconds / 3600)).padStart(2, '0');
         const mins = String(Math.floor((timerSeconds % 3600) / 60)).padStart(2, '0');
-        const secs = String(timerSeconds % 60).padStart(2, '0');
+        const secs = String(Math.floor(timerSeconds % 60)).padStart(2, '0');
         const formatted = `${hrs}:${mins}:${secs}`;
 
         timerDisplay.textContent = formatted;
