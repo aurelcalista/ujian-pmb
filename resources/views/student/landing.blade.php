@@ -297,8 +297,8 @@
 <footer class="bg-white border-top py-4 mt-auto position-relative w-100" style="z-index: 10;">
     <div class="container">
         <div class="d-flex flex-column flex-md-row align-items-center justify-content-between text-center text-md-start gap-3">
-            <div class="d-flex flex-column flex-sm-row align-items-center justify-content-center justify-content-md-start gap-3 text-center text-sm-start">
-                <img src="{{ asset('images/logo-ucic.png') }}" alt="UCIC Logo" class="footer-logo-img" style="height: 48px; width: auto; object-fit: contain;">
+            <div class="d-flex flex-column flex-sm-row align-items-center justify-content-center justify-content-md-start gap-3.5 gap-md-4 text-center text-sm-start">
+                <img src="{{ asset('images/logo-ucic-footer.png') }}" alt="UCIC Logo Emblem" class="footer-logo-img" style="height: 58px; width: auto; object-fit: contain;">
                 <div>
                     <strong class="d-block text-ucic-primary" style="font-size: 0.95rem;">Universitas Catur Insan Cendekia (UCIC)</strong>
                     <small class="text-muted d-block" style="font-size: 0.78rem;">Sistem Computer Based Test (CBT) Penerimaan Mahasiswa Baru</small>

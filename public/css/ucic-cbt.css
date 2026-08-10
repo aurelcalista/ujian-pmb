@@ -1775,20 +1775,22 @@ body {
         gap: 1.25rem !important;
     }
 
-    footer img, .footer-logo-img {
-        height: 48px !important;
+    .footer-logo-img {
+        height: 50px !important;
         width: auto !important;
-        object-fit: contain !alignment;
+        object-fit: contain;
         margin: 0 auto !important;
         display: block !important;
     }
 }
 
-footer img, .footer-logo-img {
-    height: 48px;
+.footer-logo-img {
+    height: 58px;
     width: auto;
     object-fit: contain;
+    flex-shrink: 0;
 }
+
 
 
 /* --------------------------------------------------------------------------
