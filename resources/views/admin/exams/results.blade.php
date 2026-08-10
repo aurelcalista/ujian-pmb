@@ -135,7 +135,8 @@
                     <td>{{ $sessions->firstItem() + $index }}</td>
                     <td>
                         <div class="fw-bold text-dark" style="font-size: 0.92rem;">{{ $session->participant->name ?? 'Peserta' }}</div>
-                        <small class="text-muted d-block" style="font-size: 0.72rem;">Prodi: {{ $session->participant->major_choice_1 ?? '-' }}</small>
+                        <small class="text-muted d-block" style="font-size: 0.72rem;">Prodi 1: {{ $session->participant->major_choice_1 ?? '-' }}</small>
+                        <small class="text-muted d-block" style="font-size: 0.72rem;">Prodi 2: {{ $session->participant->major_choice_2 ?? '-' }}</small>
                     </td>
                     <td>
                         <div class="fw-medium text-secondary">{{ $session->participant->school_origin ?? '-' }}</div>

@@ -42,6 +42,7 @@ class StudentController extends Controller
             'fullName' => 'required|string|max:255',
             'schoolOrigin' => 'required|string|max:255',
             'majorChoice1' => 'required|string',
+            'majorChoice2' => 'required|string',
         ]);
 
         $studyProgram = \App\Models\StudyProgram::where('name', $request->majorChoice1)->first();
@@ -82,7 +83,8 @@ class StudentController extends Controller
             
             // Update major choice just in case they changed it
             $participant->update([
-                'major_choice_1' => $request->majorChoice1
+                'major_choice_1' => $request->majorChoice1,
+                'major_choice_2' => $request->majorChoice2
             ]);
         } else {
             $participant = Participant::create([
@@ -90,6 +92,7 @@ class StudentController extends Controller
                 'name' => $request->fullName,
                 'school_origin' => $request->schoolOrigin,
                 'major_choice_1' => $request->majorChoice1,
+                'major_choice_2' => $request->majorChoice2,
             ]);
         }
 

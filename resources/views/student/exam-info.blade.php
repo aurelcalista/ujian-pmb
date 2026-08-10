@@ -106,13 +106,17 @@
                     </h5>
 
                     <ol class="space-y-3 mb-4 text-secondary" style="line-height: 1.8; font-size: 0.95rem;">
-                        <li>Bacalah setiap soal dengan teliti sebelum memilih jawaban yang dianggap paling tepat.</li>
-                        <li>Pilihlah salah satu jawaban (A, B, C, D, atau E) dengan mengklik pada kartu opsi jawaban.</li>
-                        <li>Sistem secara otomatis akan menyimpan jawaban Anda setiap kali opsi dipilih (Real-time Auto Save).</li>
-                        <li>Anda dapat mengubah jawaban selama waktu ujian masih berlangsung.</li>
-                        <li>Gunakan tombol <strong>"Ragu-ragu"</strong> jika Anda belum yakin dengan jawaban yang dipilih.</li>
-                        <li>Waktu pengerjaan akan dihitung mundur secara otomatis oleh timer di bagian atas layar.</li>
-                        <li>Jika waktu habis, sistem akan secara otomatis mengumpulkan semua jawaban Anda.</li>
+                        <li>Naskah soal ini terdiri atas 4 (empat) bagian: Logika dan Penalaran, Skala Daya Juang Akademik, Literasi Digital, dan Esai Rencana Studi & Komitmen.</li>
+                        <li>Sebelum mengerjakan, isi identitas Anda secara lengkap pada kolom identitas peserta dan pada Lembar Jawaban Peserta.</li>
+                        <li>Bacalah setiap soal dan pernyataan dengan saksama sebelum menjawab.</li>
+                        <li>Untuk soal pilihan ganda (Bagian I dan III), pilih satu jawaban yang paling tepat dengan menghitamkan/menandai huruf A, B, C, atau D pada Lembar Jawaban Peserta.</li>
+                        <li>Untuk Bagian II (skala Daya Juang Akademik), pilih salah satu angka 1 sampai 5 yang paling menggambarkan diri Anda, dengan ketentuan: 1 = Sangat Tidak Sesuai, 2 = Tidak Sesuai, 3 = Netral, 4 = Sesuai, 5 = Sangat Sesuai. Tidak ada jawaban benar atau salah pada bagian ini; jawablah sejujur-jujurnya.</li>
+                        <li>Untuk Bagian IV (esai), tuliskan jawaban Anda pada halaman esai yang telah disediakan dengan tulisan tangan yang jelas dan rapi.</li>
+                        <li>Alokasi waktu pengerjaan: 150 menit (2,5 jam) untuk keseluruhan naskah, dengan rincian yang dapat diatur sendiri oleh peserta.</li>
+                        <li>Seluruh jawaban dikerjakan secara mandiri. Kecurangan dalam bentuk apa pun akan menggugurkan status kepesertaan.</li>
+                        <li>Alat bantu yang diperbolehkan: alat tulis. Kalkulator, telepon seluler, dan alat komunikasi lain tidak diperkenankan digunakan selama ujian berlangsung.</li>
+                        <li>Naskah soal, lembar jawaban, dan lembar esai wajib dikembalikan kepada pengawas setelah waktu ujian berakhir.</li>
+                        <li>Periksa kembali kelengkapan jawaban Anda sebelum menyerahkan lembar jawaban.</li>
                     </ol>
 
                     <!-- Warning Box -->

@@ -78,10 +78,10 @@
                             </a>
 
                             <!-- Button Hapus Ujian -->
-                            <form action="{{ url('/admin/exams/' . $exam->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus ujian ini beserta seluruh soalnya?');" class="d-inline">
+                            <form action="{{ url('/admin/exams/' . $exam->id) }}" method="POST" id="deleteForm{{ $exam->id }}" class="d-inline">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-outline-danger p-2 rounded-2" title="Hapus Ujian" style="width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center;">
+                                <button type="button" class="btn btn-sm btn-outline-danger p-2 rounded-2 btn-delete-exam" data-id="{{ $exam->id }}" title="Hapus Ujian" style="width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center;">
                                     <i class="bi bi-trash-fill fs-6"></i>
                                 </button>
                             </form>
@@ -109,3 +109,33 @@
     @endif
 </div>
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const deleteButtons = document.querySelectorAll('.btn-delete-exam');
+    
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const examId = this.getAttribute('data-id');
+            const form = document.getElementById('deleteForm' + examId);
+            
+            Swal.fire({
+                title: 'Apakah Anda yakin?',
+                text: "Ujian ini beserta seluruh soalnya akan dihapus permanen!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Ya, Hapus Ujian!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+        });
+    });
+});
+</script>
+@endpush

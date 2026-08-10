@@ -254,22 +254,41 @@
                     </div>
                 </div>
 
-                <!-- Pilihan Program Studi -->
+                <!-- Pilihan Program Studi 1 -->
                 <div class="form-group-item">
                     <label for="prodi1" class="form-label-custom">
-                        Pilihan Program Studi <span class="text-danger">*</span>
+                        Pilihan Program Studi 1 <span class="text-danger">*</span>
                     </label>
                     <div class="input-group input-group-custom">
                         <span class="input-group-text">
                             <i class="bi bi-journal-bookmark-fill text-ucic-primary fs-5"></i>
                         </span>
                         <select class="form-select" id="prodi1" name="majorChoice1" required>
-                            <option value="" selected disabled>Pilih Prodi</option>
+                            <option value="" selected disabled>Pilih Prodi 1</option>
                             @foreach($studyPrograms as $prodi)
                                 <option value="{{ $prodi->name }}">{{ $prodi->name }}</option>
                             @endforeach
                         </select>
-                        <div class="invalid-feedback">Pilih program studi.</div>
+                        <div class="invalid-feedback">Pilih program studi 1.</div>
+                    </div>
+                </div>
+
+                <!-- Pilihan Program Studi 2 -->
+                <div class="form-group-item">
+                    <label for="prodi2" class="form-label-custom">
+                        Pilihan Program Studi 2 <span class="text-danger">*</span>
+                    </label>
+                    <div class="input-group input-group-custom">
+                        <span class="input-group-text">
+                            <i class="bi bi-journal-bookmark-fill text-ucic-primary fs-5"></i>
+                        </span>
+                        <select class="form-select" id="prodi2" name="majorChoice2" required>
+                            <option value="" selected disabled>Pilih Prodi 2</option>
+                            @foreach($studyPrograms as $prodi)
+                                <option value="{{ $prodi->name }}">{{ $prodi->name }}</option>
+                            @endforeach
+                        </select>
+                        <div class="invalid-feedback">Pilih program studi 2.</div>
                     </div>
                 </div>
 
