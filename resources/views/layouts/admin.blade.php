@@ -61,6 +61,11 @@
                     <span>Program Studi</span>
                 </a>
 
+                <a href="{{ url('/admin/reports') }}" class="sidebar-link @if(request()->is('admin/reports*')) active @endif">
+                    <i class="bi bi-printer-fill"></i>
+                    <span>Laporan Ujian</span>
+                </a>
+
                 <div class="text-uppercase text-muted fw-bold px-3 mt-3 mb-2" style="font-size: 0.65rem; letter-spacing: 0.8px;">Sistem</div>
 
                 <a href="{{ url('/admin/settings') }}" class="sidebar-link @if(request()->is('admin/settings')) active @endif">

@@ -55,6 +55,10 @@ Route::middleware([\App\Http\Middleware\AdminAuth::class])->group(function () {
     Route::post('/admin/study-programs/{id}', [AdminController::class, 'updateStudyProgram']);
     Route::delete('/admin/study-programs/{id}', [AdminController::class, 'destroyStudyProgram']);
 
+    // Reports
+    Route::get('/admin/reports', [AdminController::class, 'reports']);
+    Route::get('/admin/reports/print', [AdminController::class, 'printReports']);
+
     Route::get('/admin/settings', [AdminController::class, 'settings']);
     Route::post('/admin/settings', [AdminController::class, 'updateSettings']);
 });

@@ -99,9 +99,9 @@ class AdminController extends Controller
             ->groupBy('major_choice_1')
             ->orderByDesc('total')
             ->get();
-        
+
         $totalProdi = $prodiCounts->sum('total');
-        $prodiDistributions = $prodiCounts->map(function($item) use ($totalProdi) {
+        $prodiDistributions = $prodiCounts->map(function ($item) use ($totalProdi) {
             return [
                 'name' => $item->major_choice_1 ?: 'Lainnya',
                 'count' => $item->total,
@@ -186,7 +186,7 @@ class AdminController extends Controller
                 'shuffle_options' => $request->has('shuffle_options'),
                 'fullscreen_enabled' => $request->has('fullscreen_enabled'),
                 'autosave_enabled' => $request->has('autosave_enabled'),
-                'anti_cheat_enabled' => $request->has('fullscreen_enabled'), // Tied to fullscreen checkbox in UI
+                'anti_cheat_enabled' => $request->has('fullscreen_enabled'),  // Tied to fullscreen checkbox in UI
                 'max_violation' => $request->input('max_violation', 3),
                 'status' => $request->status,
             ]);
@@ -194,7 +194,8 @@ class AdminController extends Controller
             // Save Questions if provided
             if ($request->has('questions') && is_array($request->questions)) {
                 foreach ($request->questions as $index => $qData) {
-                    if (empty($qData['text'])) continue;
+                    if (empty($qData['text']))
+                        continue;
 
                     $imagePath = null;
                     if ($request->hasFile("questions.{$index}.image")) {
@@ -253,7 +254,7 @@ class AdminController extends Controller
     public function updateExam(Request $request, $id)
     {
         $exam = Exam::findOrFail($id);
-        
+
         \Log::info('Update Exam Request HIT', $request->all());
 
         $request->validate([
@@ -300,7 +301,8 @@ class AdminController extends Controller
                 $exam->questions()->delete();
 
                 foreach ($request->questions as $index => $qData) {
-                    if (empty($qData['text'])) continue;
+                    if (empty($qData['text']))
+                        continue;
 
                     $imagePath = null;
                     if ($request->hasFile("questions.{$index}.image")) {
@@ -352,12 +354,12 @@ class AdminController extends Controller
     public function examResults(Request $request, $id)
     {
         $exam = Exam::findOrFail($id);
-        
+
         $baseQuery = ExamSession::where('exam_id', $id);
-        
+
         // Filter prodi
         if ($request->filled('prodi')) {
-            $baseQuery->whereHas('participant', function($q) use ($request) {
+            $baseQuery->whereHas('participant', function ($q) use ($request) {
                 $q->where('major_choice_1', $request->prodi);
             });
         }
@@ -370,9 +372,9 @@ class AdminController extends Controller
 
         $sessionsQuery = ExamSession::with(['participant', 'answers.question', 'answers.option', 'logs'])
             ->where('exam_id', $id);
-            
+
         if ($request->filled('prodi')) {
-            $sessionsQuery->whereHas('participant', function($q) use ($request) {
+            $sessionsQuery->whereHas('participant', function ($q) use ($request) {
                 $q->where('major_choice_1', $request->prodi);
             });
         }
@@ -395,8 +397,6 @@ class AdminController extends Controller
         ));
     }
 
-
-
     /**
      * Question Bank Alias / Fallback
      */
@@ -415,18 +415,18 @@ class AdminController extends Controller
             $qs = $request->filled('prodi') ? '?prodi=' . urlencode($request->prodi) : '';
             return redirect('/admin/exams/' . $activeExam->id . '/results' . $qs);
         }
-        
+
         $query = ExamSession::with(['participant', 'exam', 'logs', 'answers.question', 'answers.option'])->latest();
-        
+
         if ($request->filled('prodi')) {
-            $query->whereHas('participant', function($q) use ($request) {
+            $query->whereHas('participant', function ($q) use ($request) {
                 $q->where('major_choice_1', $request->prodi);
             });
         }
-        
+
         $sessions = $query->paginate(15);
         $sessions->appends($request->all());
-        
+
         $prodis = \App\Models\StudyProgram::orderBy('name')->pluck('name');
 
         return view('admin.results', compact('sessions', 'prodis'));
@@ -452,9 +452,9 @@ class AdminController extends Controller
     public function unblockSession($id)
     {
         $session = ExamSession::findOrFail($id);
-        
-        // Jika session sudah finished (karena diblokir), hitung selisih waktu 
-        // sejak diblokir sampai sekarang, lalu tambahkan ke started_at 
+
+        // Jika session sudah finished (karena diblokir), hitung selisih waktu
+        // sejak diblokir sampai sekarang, lalu tambahkan ke started_at
         // agar waktu pengerjaannya tidak terpotong selama masa tunggu unblock.
         $newStartedAt = $session->started_at;
         if ($session->finished_at && $session->started_at) {
@@ -499,17 +499,18 @@ class AdminController extends Controller
                 'start_time' => $request->input('start_time', $exam->start_time),
                 'end_time' => $request->input('end_time', $exam->end_time),
                 'max_violation' => $request->input('max_violation', $exam->max_violation),
-                'shuffle_questions' => $request->has('shuffle_questions') ? (bool)$request->shuffle_questions : $exam->shuffle_questions,
-                'shuffle_options' => $request->has('shuffle_options') ? (bool)$request->shuffle_options : $exam->shuffle_options,
-                'fullscreen_enabled' => $request->has('fullscreen_enabled') ? (bool)$request->fullscreen_enabled : $exam->fullscreen_enabled,
-                'autosave_enabled' => $request->has('autosave_enabled') ? (bool)$request->autosave_enabled : $exam->autosave_enabled,
-                'anti_cheat_enabled' => $request->has('anti_cheat_enabled') ? (bool)$request->anti_cheat_enabled : $exam->anti_cheat_enabled,
+                'shuffle_questions' => $request->has('shuffle_questions') ? (bool) $request->shuffle_questions : $exam->shuffle_questions,
+                'shuffle_options' => $request->has('shuffle_options') ? (bool) $request->shuffle_options : $exam->shuffle_options,
+                'fullscreen_enabled' => $request->has('fullscreen_enabled') ? (bool) $request->fullscreen_enabled : $exam->fullscreen_enabled,
+                'autosave_enabled' => $request->has('autosave_enabled') ? (bool) $request->autosave_enabled : $exam->autosave_enabled,
+                'anti_cheat_enabled' => $request->has('anti_cheat_enabled') ? (bool) $request->anti_cheat_enabled : $exam->anti_cheat_enabled,
                 'status' => $request->input('status', $exam->status),
             ]);
         }
 
         return back()->with('success', 'Pengaturan sistem berhasil diperbarui.');
     }
+
     /**
      * Study Programs Management
      */
@@ -539,5 +540,81 @@ class AdminController extends Controller
         $prodi = \App\Models\StudyProgram::findOrFail($id);
         $prodi->delete();
         return back()->with('success', 'Program studi berhasil dihapus.');
+    }
+
+    /**
+     * Laporan Ujian
+     */
+    public function reports(Request $request)
+    {
+        $query = \App\Models\ExamSession::with(['participant', 'exam'])
+            ->where('status', 'finished')
+            ->orderBy('finished_at', 'asc');
+
+        if ($request->filled('prodi')) {
+            $query->whereHas('participant', function ($q) use ($request) {
+                $q->where('major_choice_1', $request->prodi);
+            });
+        }
+        if ($request->filled('exam_id')) {
+            $query->where('exam_id', $request->exam_id);
+        }
+
+        $sessions = $query->paginate(15);
+        $sessions->appends($request->all());
+
+        $prodis = \App\Models\StudyProgram::orderBy('name')->pluck('name');
+        $exams = \App\Models\Exam::orderBy('title')->get();
+
+        return view('admin.reports.index', compact('sessions', 'prodis', 'exams'));
+    }
+
+    /**
+     * Cetak Laporan Ujian
+     */
+    public function printReports(Request $request)
+    {
+        $query = \App\Models\ExamSession::with(['participant', 'exam'])
+            ->where('status', 'finished')
+            ->orderBy('finished_at', 'asc');
+
+        if ($request->filled('prodi')) {
+            $query->whereHas('participant', function ($q) use ($request) {
+                $q->where('major_choice_1', $request->prodi);
+            });
+        }
+        if ($request->filled('exam_id')) {
+            $query->where('exam_id', $request->exam_id);
+        }
+
+        $sessions = $query->get();
+        $prodiFilter = $request->prodi ?? 'Semua Program Studi';
+        $isExport = $request->has('type');
+
+        if ($request->type === 'pdf') {
+            $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('admin.reports.print', compact('sessions', 'prodiFilter', 'isExport'))
+                ->setPaper('a4', 'portrait');
+            return $pdf->download('Laporan_Hasil_Ujian_' . date('Ymd_His') . '.pdf');
+        }
+
+        if ($request->type === 'word') {
+            $headers = [
+                'Content-Type' => 'application/vnd.ms-word',
+                'Content-Disposition' => 'attachment; filename="Laporan_Hasil_Ujian_' . date('Ymd_His') . '.doc"',
+                'Cache-Control' => 'max-age=0'
+            ];
+            return response()->view('admin.reports.print', compact('sessions', 'prodiFilter', 'isExport'), 200, $headers);
+        }
+
+        if ($request->type === 'excel') {
+            $headers = [
+                'Content-Type' => 'application/vnd.ms-excel',
+                'Content-Disposition' => 'attachment; filename="Laporan_Hasil_Ujian_' . date('Ymd_His') . '.xls"',
+                'Cache-Control' => 'max-age=0'
+            ];
+            return response()->view('admin.reports.print', compact('sessions', 'prodiFilter', 'isExport'), 200, $headers);
+        }
+
+        return view('admin.reports.print', compact('sessions', 'prodiFilter', 'isExport'));
     }
 }
